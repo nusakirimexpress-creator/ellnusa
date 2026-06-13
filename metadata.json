@@ -1,0 +1,6 @@
+{
+  "name": "NusaKirim Jastip Shopee",
+  "description": "Platform Jasa Titip Pembelian Barang Shopee Hemat Terintegrasi oleh Jaringan Logistik NusaKirim.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
