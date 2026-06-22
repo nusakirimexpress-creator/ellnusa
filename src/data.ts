@@ -42,12 +42,12 @@ export const EXPRESS_STATISTICS = [
 
 export const LOGISTICS_FAQ = [
   {
-    q: "Bagaimana cara kerja jasa titip beli link di NusaKirim?",
-    a: "Anda tinggal menyalin link produk dari marketplace seperti Shopee, Tokopedia, atau TikTok Shop dan menempelkannya di situs kami. Admin kami akan memeriksa stok barang, melakukan perhitungan kurs (bila destinasi internasional) beserta estimasi ongkir, dan membelikannya untuk Anda setelah dana dikonfirmasi."
+    q: "Berapa ongkos kirim Ternate ke Sofifi?",
+    a: "Rp30.000 per kg. Di bawah 1 kg tetap Rp30.000. Lebih dari 1 kg, tambah Rp10.000 per kg."
   },
   {
-    q: "Apakah ada biaya tambahan untuk jasa pembelian (jastip)?",
-    a: "Biaya jasa titip beli sangat terjangkau, berkisar antara Rp 5.000 sampai Rp 15.000 per toko di luar harga barang asli dan ongkos kirim. Kami memberikan layanan packing ulang (re-packing) bubble wrap gratis agar paket Anda sangat aman."
+    q: "Bagaimana cara kerja jasa titip beli link di NusaKirim?",
+    a: "Anda tinggal menyalin link produk dari marketplace seperti Shopee, Tokopedia, atau TikTok Shop dan menempelkannya di situs kami. Admin kami akan memeriksa stok barang, melakukan perhitungan kurs (bila destinasi internasional) beserta estimasi ongkir, dan membelikannya untuk Anda setelah dana dikonfirmasi."
   },
   {
     q: "Berapa lama waktu yang dibutuhkan admin untuk merespon link yang saya tempel?",

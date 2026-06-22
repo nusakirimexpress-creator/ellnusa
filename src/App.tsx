@@ -53,6 +53,291 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [showOrderForm, setShowOrderForm] = useState(false);
+
+  // Language state (Indonesian 'id' vs Chinese 'zh')
+  const [language, setLanguage] = useState<'id' | 'zh'>(() => {
+    try {
+      const saved = localStorage.getItem('nusakirim_lang');
+      return (saved === 'zh' || saved === 'id') ? saved : 'id';
+    } catch {
+      return 'id';
+    }
+  });
+
+  const translations = {
+    id: {
+      navHome: "Beranda",
+      navAbout: "Tentang Kami",
+      navHow: "Cara Kerja",
+      navRates: "Tarif Kargo",
+      navFaq: "FAQ",
+      navGuide: "Panduan",
+      navAdmin: "Admin Mode",
+      navAdminExit: "Keluar Admin",
+      title: "NusaKirim Express",
+      subtitle: "Jembatan Belanja Ternate – Sofifi",
+      loginGreeting: "Halo Kak! Silakan lengkapi profil singkat Anda sebelum memulai. Cukup sekali isi, selanjutnya tinggal salin & tempel link belanja saja!",
+      langLabel: "Pilih Bahasa / 选择语言",
+      nameLabel: "Nama Lengkap *",
+      namePlaceholder: "Contoh: Muhammad Rian",
+      nameTip: "Gunakan nama asli untuk mempermudah verifikasi paket.",
+      phoneLabel: "Nomor WhatsApp Aktif *",
+      phonePlaceholder: "Contoh: 08123456789 atau +62...",
+      phoneTip: "Admin akan segera berkabar melalui nomor WhatsApp ini.",
+      addressLabel: "Alamat Pengiriman Lengkap *",
+      addressPlaceholder: "Contoh: Perumahan Indah Sofifi, Blok C No. 5, Sofifi, Maluku Utara (Dekat Kantor Gubernur)",
+      addressTip: "Pastikan rincian rute pengiriman, kelurahan, dan kecamatan ditulis lengkap.",
+      loginBtn: "⚡ Masuk & Mulai Belanja ⚡",
+      loginFooter: "Data Anda aman & tersimpan secara lokal di browser Anda.",
+      
+      // Hero / Welcome row
+      welcomeBack: "Selamat Datang,",
+      userBadge: "PELANGGAN SETIA",
+      greetingSearchPlaceholder: "Tempel link barang jastip anda di sini...",
+      pointCounter: "Poin NK Anda",
+      memberTier: "Member Premium",
+      activeOrderDesc: "Punya pesanan? Klik tab di bawah untuk memantau status.",
+      
+      // Floating services row (Enjoy shopping & Tagihan)
+      enjoyShopping: "ENJOY SHOPPING",
+      enjoyShoppingSub: "Mulai Jastip Baru",
+      tagihanLapor: "TAGIHAN & LAPOR",
+      chatAdminLive: "Chat Admin Live",
+      
+      // Special Info Bar
+      specialTitle: "Layanan Spesial NK",
+      specialBanner: "⚡ KIRIM PAKET TERNATE - SOFIFI MURAH AMAN ⚡",
+      specialBadge: "Mulai Rp 30rb/Kg",
+      
+      // Order Form
+      valuePropTitle: "Formulir Jastip NusaKirim Express",
+      valuePropSub: "JASA TITIP BELANJA & KARGO AMAN",
+      valuePropStep1: "Tempel link barang idaman Anda & isi formulir di samping.",
+      valuePropStep2: "Admin kami akan mengecek, merincikan harga total, dan membuatkan invoice pemesanan.",
+      valuePropStep3: "Barang dibelikan, di-repacking gratis dengan bubble wrap tebal, dan dikirimkan dengan kargo murah.",
+      orderFormTips: "Tips Lacak: Setelah tombol \"Kirim Pesanan\" diklik, tab chat pelacakan akan otomatis terbuka. Anda juga bebas mengobrol langsung dengan Admin di chat room tersebut.",
+      orderFormTitle: "FORMULIR PEMESANAN JASTIP & KARGO",
+      marketplaceLabel: "Marketplace Asal Barang *",
+      linkInputLabel: "Tempel Link Produk / URL Barang *",
+      linkInputPlaceholder: "Contoh: https://shopee.co.id/product/...",
+      qtyLabel: "Jumlah Pembelian (Quantity) *",
+      notesLabel: "Catatan Tambahan untuk Admin (Opsional)",
+      notesPlaceholder: "Contoh: Warna Hitam, Ukuran XL, atau varian alternatif jika kosong.",
+      submitOrderBtn: "KIRIM PESANAN JASTIP SEKARANG 🚀",
+      shippingEstimateNote: "Estimasi Pengantaran: 1-2 Hari setelah barang mendarat di Gudang Ternate.",
+      
+      // Pricing Comparer & Steps
+      caraKerjaTitle: "Cara Kerja NK Express",
+      caraKerjaSub: "NK Express membantu Anda menerima paket di Ternate dan mengirimkannya ke Sofifi. Ongkos kirim dari Ternate ke Sofifi biasanya Rp80.000 per kg. Dengan NK Express, cukup Rp30.000 per kg. Caranya mudah: belanja seperti biasa, isi alamat gudang kami di Ternate, kirim screenshot pesanan ke kami, lalu ambil paket di Sofifi.",
+      tarifUmum: "Ongkir Umum Biasa",
+      tarifNK: "Tarif Spesial NK Express",
+      tarifNKSub: "* Lebih hemat 60%+ untuk pengiriman Bastiong ke Halmahera / Sofifi!",
+      prosedurTitle: "PROSEDUR PELANGGAN (3.3)",
+      prosedurSub: "4 Langkah Mudah Kirim & Beli",
+      
+      step1Title: "Belanja seperti biasa",
+      step1Desc: "Belanja di Shopee / Tokopedia / TikTok Shop / Lazada seperti biasanya Anda belanja online harian.",
+      step2Title: "Isi alamat gudang kami",
+      step2Desc: "Gunakan alamat gudang kami di Ternate sebagai alamat pengiriman. Format nama penerima: NK-Nama Anda.",
+      step3Title: "Kirim bukti pesanan",
+      step3Desc: "Selesaikan pembayaran belanja, lalu screenshot rincian pesanan dan kirim langsung ke WhatsApp kami.",
+      step4Title: "Ambil paket di Sofifi",
+      step4Desc: "Kami akan memantau kedatangan di Ternate, melalukan cross-shipping cepat, dan mengabari begitu paket tiba di Sofifi.",
+      
+      // Admin Mode Translations
+      adminCommandCenter: "NusaKirim Order Command Center",
+      adminTitle: "Pengelola Link & Pesanan Masuk",
+      adminSubtitle: "Gunakan panel ini untuk meninjau link produk yang ditempelkan pembeli, mengisi estimasi harga, merubah status, dan mengirim instruksi bayar langsung via WhatsApp.",
+      adminTotalLinks: "Total Link",
+      adminTabPending: "🆕 Masuk",
+      adminTabProcessing: "⚙️ Diproses",
+      adminTabCompleted: "✅ Selesai",
+      adminTabCancelled: "❌ Batal",
+      adminWaConfigTitle: "Konfigurasi Notifikasi WhatsApp Admin",
+      adminWaConfigDesc: "Masukkan nomor WhatsApp Anda (dengan kode negara, contoh: 6281245695410). Pelanggan baru akan otomatis diarahkan untuk mengirim pesan notifikasi pendaftaran ke nomor ini setelah mereka berhasil login/daftar.",
+      adminWaConfigActive: "Aktif",
+      adminSearchPlaceholder: "Cari berdasarkan nama, No WA, produk, atau ID...",
+      adminAllStatus: "Semua Status",
+      adminLoading: "Memuat pesanan dan draf pengiriman...",
+      adminNoOrdersTitle: "Belum Ada Pesanan yang Masuk",
+      adminNoOrdersDesc: "Sistem dalam keadaan siap! Pesanan baru yang diajukan oleh pelanggan (menyertakan Nama, No. WhatsApp, serta Link Produk) akan otomatis muncul secara instan di panel admin ini.",
+      adminRefreshFilter: "Refresh / Tampilkan Semua Saringan",
+      adminOrderLabel: "ORDER #",
+      adminBuyerLabel: "NAMA PEMBELI",
+      adminWaLabel: "NO WHATSAPP",
+      adminAddressLabel: "ALAMAT PENGIRIMAN",
+      adminLinkCustomer: "LINK BELANJA PELANGGAN",
+      adminQtyLabel: "QTY PESANAN",
+      adminNotesLabel: "CATATAN KHUSUS PELANGGAN",
+      adminNoNotes: "Tidak ada catatan khusus.",
+      adminCostLabel: "ESTIMASI BIAYA & ONGKIR",
+      adminAutoSave: "AUTO-SAVE",
+      adminCostNote: "Tekan 'Enter' atau klik di luar kotak untuk menyimpan biaya.",
+      adminChangeStatusLabel: "RUBAH STATUS PESANAN",
+      adminStatusPendingOpt: "🆕 Masuk (Pending)",
+      adminStatusProcessingOpt: "⚙️ Sedang Diproses",
+      adminStatusCompletedOpt: "✅ Selesai Dibelikan",
+      adminStatusCancelledOpt: "❌ Batalkan Pesanan",
+      adminChatLiveBtn: "Chat Live",
+      adminWaChatBtn: "WA Chat",
+      adminActivityTitle: "Aktivitas Masuk (Live)",
+      adminActivityLogCount: "Log",
+      adminActivityDesc: "Laporan aktivitas real-time pengunjung yang membuka web, mendaftar biodata, atau mengirim link belanja kargo secara instan.",
+      adminNoActivity: "Belum ada aktivitas terekam...",
+      adminRefreshLogBtn: "REFRESH LOG",
+      adminSimulationBtn: "🧪 Simulasi Masuk",
+      adminChatLiveHeader: "CUSTOMER LIVE CHAT",
+      adminChatLoading: "Memanggil pesan obrolan...",
+      adminChatNoMessagesTitle: "Belum Ada Obrolan",
+      adminChatNoMessagesDesc: "Hubungi pelanggan untuk koordinasi pengemasan barang, konfirmasi harga, atau ongkir jastip mereka.",
+      adminChatPlaceholder: "Ketik pesan balasan...",
+      adminQuickBought: "🛒 Sedang dibelikan",
+      adminQuickCost: "💳 Estimasi biaya",
+      adminQuickReady: "📦 Siap kirim",
+      duplicateLinkError: "Link produk ini sudah pernah diajukan sebelumnya dan sedang diproses admin agar tidak terjadi pemesanan ganda.",
+    },
+    zh: {
+      navHome: "首页",
+      navAbout: "关于我们",
+      navHow: "运作流程",
+      navRates: "货运价格",
+      navFaq: "常见问题",
+      navGuide: "指南",
+      navAdmin: "管理员模式",
+      navAdminExit: "退出管理员",
+      title: "NusaKirim Express (NK快递)",
+      subtitle: "德尔纳特 – 索菲菲 购物桥梁",
+      loginGreeting: "您好！在开始之前，请先完善您的简要个人信息。只需填写一次，之后即可直接复制和粘贴购物链接！",
+      langLabel: "Pilih Bahasa / 选择语言",
+      nameLabel: "真实姓名 *",
+      namePlaceholder: "例如: Muhammad Rian",
+      nameTip: "请使用真实姓名，以便于包裹核对和签收。",
+      phoneLabel: "有效的 WhatsApp 号码 *",
+      phonePlaceholder: "例如: 08123456789 或 +62...",
+      phoneTip: "管理员将通过此 WhatsApp 号码与您取得联系。",
+      addressLabel: "详细收货地址 *",
+      addressPlaceholder: "例如: Perumahan Indah Sofifi, Blok C No. 5, Sofifi, Maluku Utara (靠近省长办公室)",
+      addressTip: "请确保写明配送路线详情、村和区等完整信息。",
+      loginBtn: "⚡ 登录并开始购物 ⚡",
+      loginFooter: "您的数据安全，且在浏览器中本地加密保存。",
+      
+      // Hero / Welcome row
+      welcomeBack: "欢迎回来，",
+      userBadge: "忠实客户",
+      greetingSearchPlaceholder: "在此处粘贴您的代购产品链接...",
+      pointCounter: "您的 NK 积分",
+      memberTier: "高级会员",
+      activeOrderDesc: "有订单吗？点击下方标题栏即可监控订单状态。",
+      
+      // Floating services row (Enjoy shopping & Tagihan)
+      enjoyShopping: "享受购物",
+      enjoyShoppingSub: "开始新代购下单",
+      tagihanLapor: "账单与反馈",
+      chatAdminLive: "与在线客服沟通",
+      
+      // Special Info Bar
+      specialTitle: "NK 特别服务",
+      specialBanner: "⚡ 德尔纳特 - 索菲菲 特惠安全包裹运输 ⚡",
+      specialBadge: "3万印尼盾/公斤起",
+      
+      // Order Form
+      valuePropTitle: "NK Express 代购与货运申请表",
+      valuePropSub: "安全代购与超值货运服务",
+      valuePropStep1: "粘贴您心仪商品的链接并在右侧填写表格。",
+      valuePropStep2: "我们的客服会审核、罗列总价，并为您生成付款账单。",
+      valuePropStep3: "我们采购商品，免费提供气泡膜加厚包装，并安排特惠物流发货。",
+      orderFormTips: "追踪小贴士：点击“提交代购订单”按钮后，追踪聊天窗口将自动打开。您也可以在聊天室中直接与客服沟通。",
+      orderFormTitle: "代购与货运下单表格",
+      marketplaceLabel: "商品来源平台 *",
+      linkInputLabel: "粘贴商品链接 / 网址 URL *",
+      linkInputPlaceholder: "例如: https://shopee.co.id/product/...",
+      qtyLabel: "购买数量 *",
+      notesLabel: "给管理员的备注 (选填)",
+      notesPlaceholder: "例如：黑色，XL码，或者缺货时的备选颜色款式。",
+      submitOrderBtn: "立即提交代购订单 🚀",
+      shippingEstimateNote: "预计送达时间：货物抵达德尔纳特仓库后 1-2 天内送达。",
+      
+      // Pricing Comparer & Steps
+      caraKerjaTitle: "NK Express 运作流程",
+      caraKerjaSub: "NK Express 帮助您在德尔纳特代收包裹并运送到索菲菲。从德尔纳特到索菲菲的普通运费通常高达 80,000 印尼盾/公斤，而通过 NK Express 仅需 30,000 印尼盾/公斤。流程非常简单：像平常一样网购，收货地址填写我们在德尔纳特的仓库地址，截图订单发送给我们，最后在索菲菲提货即可。",
+      tarifUmum: "普通物流运费",
+      tarifNK: "NK Express 特惠运费",
+      tarifNKSub: "* 巴斯提翁到哈马黑拉/索菲菲的货运可节省60%以上！",
+      prosedurTitle: "客户操作流程 (3.3)",
+      prosedurSub: "只需 4 步 轻松网购与转运",
+      
+      step1Title: "第一步：轻松购物",
+      step1Desc: "像往常一样在 Shopee / Tokopedia / TikTok Shop / Lazada 平台挑选心仪的商品并下单付款。",
+      step2Title: "第二步：填写我们的仓库地址",
+      step2Desc: "下单时，使用我们在德尔纳特的仓库地址作为收货地址。收货人格式：NK-您的姓名。",
+      step3Title: "第三步：发送订单凭证",
+      step3Desc: "在商城下单后，将订单详情截图直接发送到我们的客服 WhatsApp 上进行登记。",
+      step4Title: "第四步：在索菲菲提取包裹",
+      step4Desc: "我们将实时监控货物在德尔纳特的到达情况，迅速安排驳船转运，并在货物抵达索菲菲后即时通知您签收。",
+      
+      // Admin Mode Translations
+      adminCommandCenter: "NusaKirim 订单控制中心",
+      adminTitle: "链接与入库订单管理",
+      adminSubtitle: "使用此面板审核买家粘贴的商品链接、填写预估价格、更改状态并通过 WhatsApp 直接发送支付指示。",
+      adminTotalLinks: "链接总数",
+      adminTabPending: "🆕 待处理",
+      adminTabProcessing: "⚙️ 处理中",
+      adminTabCompleted: "✅ 已完成",
+      adminTabCancelled: "❌ 已取消",
+      adminWaConfigTitle: "管理员 WhatsApp 通知配置",
+      adminWaConfigDesc: "输入您的 WhatsApp 号码（带国家代码，例如：6281245695410）。新客户在成功登录/注册后将自动引导向该号码发送注册通知消息。",
+      adminWaConfigActive: "已启用",
+      adminSearchPlaceholder: "按姓名、WhatsApp号、产品或ID搜索...",
+      adminAllStatus: "所有状态",
+      adminLoading: "正在加载订单和出货草稿...",
+      adminNoOrdersTitle: "暂无新订单",
+      adminNoOrdersDesc: "系统准备就绪！客户提交的新订单（包含姓名、WhatsApp 号码以及商品链接）将自动即时显示在此管理面板中。",
+      adminRefreshFilter: "刷新 / 显示所有筛选",
+      adminOrderLabel: "订单 #",
+      adminBuyerLabel: "买家姓名",
+      adminWaLabel: "WhatsApp 号码",
+      adminAddressLabel: "收货地址",
+      adminLinkCustomer: "客户购物链接",
+      adminQtyLabel: "订单数量",
+      adminNotesLabel: "客户特别备注",
+      adminNoNotes: "暂无特别备注。",
+      adminCostLabel: "预估费用与运费",
+      adminAutoSave: "自动保存",
+      adminCostNote: "按回车键或点击框外以保存费用。",
+      adminChangeStatusLabel: "修改订单状态",
+      adminStatusPendingOpt: "🆕 新建 (待处理)",
+      adminStatusProcessingOpt: "⚙️ 正在处理",
+      adminStatusCompletedOpt: "✅ 采购完成",
+      adminStatusCancelledOpt: "❌ 取消订单",
+      adminChatLiveBtn: "在线客服",
+      adminWaChatBtn: "WA 聊天",
+      adminActivityTitle: "实时入站活动",
+      adminActivityLogCount: "日志",
+      adminActivityDesc: "实时报告打开网页、注册个人信息或即时发送货运购物链接的访问者活动。",
+      adminNoActivity: "暂无记录的活动...",
+      adminRefreshLogBtn: "刷新日志",
+      adminSimulationBtn: "模拟进入",
+      adminChatLiveHeader: "客户在线客服",
+      adminChatLoading: "正在拉取聊天记录...",
+      adminChatNoMessagesTitle: "暂无聊天记录",
+      adminChatNoMessagesDesc: "联系客户以协调商品包装、确认价格或确认其代购运费。",
+      adminChatPlaceholder: "输入回复消息...",
+      adminQuickBought: "🛒 正在采购中",
+      adminQuickCost: "预估所需费用",
+      adminQuickReady: "📦 打包完成准备发货",
+      duplicateLinkError: "该商品链接此前已提交，管理员正在处理中，以避免重复下单。",
+    }
+  };
+
+  const t = translations[language];
+
+  const handleLanguageChange = (lang: 'id' | 'zh') => {
+    setLanguage(lang);
+    try {
+      localStorage.setItem('nusakirim_lang', lang);
+    } catch {}
+    addToast(lang === 'zh' ? '语言已切换为中文' : 'Bahasa berhasil diubah ke Indonesia', 'success');
+  };
   
   // User Profile from local storage (Login / Signup)
   const [userProfile, setUserProfile] = useState<{ name: string; phone: string; address: string } | null>(() => {
@@ -61,6 +346,17 @@ export default function App() {
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
+    }
+  });
+
+  const [showWaNotificationModal, setShowWaNotificationModal] = useState(false);
+  const [recentRegisteredUser, setRecentRegisteredUser] = useState<{ name: string; phone: string; address: string } | null>(null);
+  const [adminWhatsAppNumber, setAdminWhatsAppNumber] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('nusakirim_admin_whatsapp');
+      return saved || '6281245695410';
+    } catch {
+      return '621245695410';
     }
   });
 
@@ -103,6 +399,65 @@ export default function App() {
 
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
+
+  // Real-time visitor activity states & admin notifications
+  const [activities, setActivities] = useState<any[]>([]);
+  const [seenActivityIds, setSeenActivityIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('nusakirim_seen_activity_ids');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const logActivity = async (type: 'login' | 'register' | 'enter' | 'submit_order', name: string, phone: string, address: string, details?: string) => {
+    try {
+      await fetch('/api/activities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, customerName: name, customerPhone: phone, customerAddress: address, details })
+      });
+    } catch (err) {
+      console.error("Error logging activity:", err);
+    }
+  };
+
+  // Report visitor enter/presence once per session
+  useEffect(() => {
+    const notifyVisitorEnter = async () => {
+      try {
+        const saved = localStorage.getItem('nusakirim_user_profile');
+        if (saved) {
+          const profile = JSON.parse(saved);
+          if (profile.name && profile.phone) {
+            const reported = sessionStorage.getItem('nusakirim_session_notified');
+            if (!reported) {
+              await fetch('/api/activities', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  type: 'enter',
+                  customerName: profile.name,
+                  customerPhone: profile.phone,
+                  customerAddress: profile.address || '',
+                  details: 'Membuka / Masuk kembali ke Web NusaKirim'
+                })
+              });
+              sessionStorage.setItem('nusakirim_session_notified', 'true');
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Gagal mengirim notifikasi kunjungan:", err);
+      }
+    };
+    
+    const timer = setTimeout(() => {
+      notifyVisitorEnter();
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [userProfile]);
 
   // Local active orders for tracking & live chat
   const [mySubmissions, setMySubmissions] = useState<string[]>(() => {
@@ -179,14 +534,60 @@ export default function App() {
     }
   };
 
+  // 1b. Fetch live activity logs
+  const fetchActivities = async (silent = false) => {
+    try {
+      const response = await fetch('/api/activities');
+      const result = await response.json();
+      if (result.success) {
+        const fetchedLogs = result.data;
+        
+        // If we have unseen activities, trigger toast alerts
+        if (fetchedLogs.length > 0) {
+          const unseenLogs = fetchedLogs.filter((log: any) => !seenActivityIds.includes(log.id));
+          if (unseenLogs.length > 0) {
+            // Only trigger toast alerts if we are in admin mode or if they are recent submit_orders
+            unseenLogs.forEach((log: any) => {
+              let iconMsg = "🎒";
+              let titleMsg = "Aktivitas Pelanggan";
+              if (log.type === "register") {
+                iconMsg = "✨ PENDAFTARAN BARU";
+                titleMsg = `${log.customerName} baru saja mendaftar profil di NusaKirim! No. WA: ${log.customerPhone}`;
+              } else if (log.type === "enter") {
+                iconMsg = "🟢 PENGUNJUNG DATANG";
+                titleMsg = `${log.customerName} baru saja membuka website NusaKirim.`;
+              } else if (log.type === "submit_order") {
+                iconMsg = "🛍️ LINK BELANJA BARU";
+                titleMsg = `${log.customerName} baru saja mengajukan pesanan link belanja baru!`;
+              }
+
+              // Notify with a toast
+              addToast(`[${iconMsg}] ${titleMsg}`, 'success');
+            });
+
+            const newSeen = [...seenActivityIds, ...unseenLogs.map((log: any) => log.id)];
+            const limitedSeen = newSeen.slice(-100);
+            setSeenActivityIds(limitedSeen);
+            localStorage.setItem('nusakirim_seen_activity_ids', JSON.stringify(limitedSeen));
+          }
+        }
+        setActivities(fetchedLogs);
+      }
+    } catch (error) {
+      console.error("Error fetching activities:", error);
+    }
+  };
+
   // Poll submissions every 3 seconds so both views stay automatically in sync!
   useEffect(() => {
     fetchSubmissions();
+    fetchActivities();
     const interval = setInterval(() => {
       fetchSubmissions(true);
+      fetchActivities(true);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isAdminMode, seenActivityIds]);
 
   // Fetch messages from a specific order thread
   const fetchChatMessages = async (id: string, silent = false) => {
@@ -273,6 +674,16 @@ export default function App() {
       return;
     }
 
+    // Prevent duplicate product link submission if there is an active order with the same link
+    const targetUrl = productUrl.trim().toLowerCase();
+    const isDuplicate = submissions.some(sub => 
+      sub.productUrl.trim().toLowerCase() === targetUrl && sub.status !== 'cancelled'
+    );
+    if (isDuplicate) {
+      addToast(t.duplicateLinkError, 'info');
+      return;
+    }
+
     setSubmitPending(true);
     try {
       const response = await fetch('/api/submissions', {
@@ -315,6 +726,9 @@ export default function App() {
         
         // Refresh items list
         fetchSubmissions(true);
+        
+        // Log submission activity to admin feed
+        logActivity('submit_order', customerName.trim(), customerPhone.trim(), customerAddress.trim(), `Mengajukan link pesanan baru (${selectedMarketplace.toUpperCase()} - Qty: ${quantity})`);
       } else {
         addToast(result.error || 'Gagal mengirimkan pengajuan.', 'info');
       }
@@ -497,36 +911,56 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
               onClick={() => handleScrollToSection('hero-portal')} 
               className="hover:text-studio-accent transition-colors cursor-pointer text-zinc-600 hover:underline decoration-studio-accent decoration-2 underline-offset-4"
             >
-              Beranda
+              {t.navHome}
             </button>
             <button 
               onClick={() => handleScrollToSection('tentang-kami')} 
               className="hover:text-studio-accent transition-colors cursor-pointer text-zinc-600 hover:underline decoration-studio-accent decoration-2 underline-offset-4"
             >
-              Tentang Kami
+              {t.navAbout}
             </button>
             <button 
               onClick={() => handleScrollToSection('how-it-works')} 
               className="hover:text-studio-accent transition-colors cursor-pointer text-zinc-600 hover:underline decoration-studio-accent decoration-2 underline-offset-4"
             >
-              Cara Kerja
-            </button>
-            <button 
-              onClick={() => handleScrollToSection('shipping-rates')} 
-              className="hover:text-studio-accent transition-colors cursor-pointer text-zinc-600 hover:underline decoration-studio-accent decoration-2 underline-offset-4"
-            >
-              Tarif Kargo
+              {t.navHow}
             </button>
           </nav>
 
           {/* Quick options and mode trigger */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Language Switcher in Header */}
+            <div className="flex items-center gap-1 bg-zinc-200/60 border border-zinc-350/20 rounded-xl p-0.5 select-none shrink-0">
+              <button
+                onClick={() => handleLanguageChange('id')}
+                className={`px-2 py-1 rounded-lg text-[10px] font-black transition-all cursor-pointer ${
+                  language === 'id'
+                    ? 'bg-[#E61C24] text-white shadow-xs'
+                    : 'text-zinc-600 hover:text-zinc-900 bg-transparent'
+                }`}
+                title="Bahasa Indonesia"
+              >
+                🇮🇩 ID
+              </button>
+              <button
+                onClick={() => handleLanguageChange('zh')}
+                className={`px-2 py-1 rounded-lg text-[10px] font-black transition-all cursor-pointer ${
+                  language === 'zh'
+                    ? 'bg-[#E61C24] text-white shadow-xs'
+                    : 'text-zinc-600 hover:text-zinc-900 bg-transparent'
+                }`}
+                title="中文 (Chinese)"
+              >
+                🇨🇳 华语
+              </button>
+            </div>
+
             <button
               onClick={() => setShowGuideModal(true)}
               className="px-3 py-2 rounded-xl text-xs font-semibold text-zinc-650 hover:text-studio-charcoal hover:bg-zinc-150/60 transition-colors flex items-center gap-1.5 border border-zinc-200"
             >
               <HelpCircle className="w-3.5 h-3.5 text-studio-accent" />
-              <span className="hidden sm:inline">Panduan</span>
+              <span className="hidden sm:inline">{t.navGuide}</span>
             </button>
 
             <div className="w-[1px] h-6 bg-zinc-250"></div>
@@ -537,7 +971,7 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
               onClick={() => {
                 if (isAdminMode) {
                   setIsAdminMode(false);
-                  addToast('Kembali ke Halaman Pelanggan NusaKirim', 'info');
+                  addToast(language === 'zh' ? '返回访客模式' : 'Kembali ke Halaman Pelanggan NusaKirim', 'info');
                 } else {
                   // Reset states and present password challenge modal
                   setAdminPasswordInput('');
@@ -553,7 +987,7 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
               }`}
             >
               <Shield className={`w-3.5 h-3.5 ${isAdminMode ? 'animate-pulse' : ''}`} />
-              <span>{isAdminMode ? 'Keluar Admin' : '🔐 Admin Mode'}</span>
+              <span>{isAdminMode ? (language === 'zh' ? '退出管理' : 'Keluar Admin') : `🔐 ${t.navAdmin}`}</span>
               
               {/* Counter status badge for unchecked submissions in header */}
               {!isAdminMode && submissions.filter(s => s.status === 'pending').length > 0 && (
@@ -569,19 +1003,16 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
         {!isAdminMode && (
           <div className="flex md:hidden bg-zinc-100 border-t border-zinc-200/80 px-4 py-2 overflow-x-auto scrollbar-none gap-4 text-[11px] font-bold tracking-wide text-zinc-500 whitespace-nowrap">
             <button onClick={() => handleScrollToSection('hero-portal')} className="active:text-studio-accent">
-              📍 Beranda / Tempel Link
+              📍 {t.navHome}
             </button>
             <button onClick={() => handleScrollToSection('tentang-kami')} className="active:text-studio-accent">
-              ℹ️ Tentang Kami
+              ℹ️ {t.navAbout}
             </button>
             <button onClick={() => handleScrollToSection('how-it-works')} className="active:text-studio-accent">
-              💡 Cara Kerja
-            </button>
-            <button onClick={() => handleScrollToSection('shipping-rates')} className="active:text-studio-accent">
-              🚢 Estimasi Tarif
+              💡 {t.navHow}
             </button>
             <button onClick={() => handleScrollToSection('logistics-faq')} className="active:text-studio-accent">
-              ❓ FAQ / Tanya Jawab
+              ❓ {t.navFaq}
             </button>
           </div>
         )}
@@ -607,13 +1038,13 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                 <div>
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-100 text-zinc-700 rounded-full text-[11px] font-mono font-bold mb-3">
                     <Shield className="w-3.5 h-3.5 text-studio-terracotta" />
-                    <span>NusaKirim Order Command Center</span>
+                    <span>{t.adminCommandCenter}</span>
                   </div>
                   <h2 className="text-3xl font-display font-black text-studio-charcoal tracking-tight">
-                    Pengelola Link & Pesanan Masuk
+                    {t.adminTitle}
                   </h2>
                   <p className="text-sm text-zinc-500 mt-1">
-                    Gunakan panel ini untuk meninjau link produk yang ditempelkan pembeli, mengisi estimasi harga, merubah status, dan mengirim instruksi bayar langsung via WhatsApp.
+                    {t.adminSubtitle}
                   </p>
                 </div>
 
@@ -621,22 +1052,58 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                 <div className="flex gap-4 sm:gap-6 shrink-0 bg-studio-beige/60 p-4 rounded-2xl border border-zinc-200">
                   <div className="text-center">
                     <span className="block text-2xl font-display font-black text-studio-charcoal">{submissions.length}</span>
-                    <span className="text-[10px] font-mono text-zinc-500 uppercase">Total Link</span>
+                    <span className="text-[10px] font-mono text-zinc-500 uppercase">{t.adminTotalLinks}</span>
                   </div>
                   <div className="w-[1px] bg-zinc-300"></div>
                   <div className="text-center">
                     <span className="block text-2xl font-display font-black text-orange-600">
                       {submissions.filter(s => s.status === 'pending').length}
                     </span>
-                    <span className="text-[10px] font-mono text-zinc-500 uppercase">Masuk</span>
+                    <span className="text-[10px] font-mono text-zinc-500 uppercase">{language === 'zh' ? '待处理' : 'Masuk'}</span>
                   </div>
                   <div className="w-[1px] bg-zinc-300"></div>
                   <div className="text-center">
                     <span className="block text-2xl font-display font-black text-emerald-600">
                       {submissions.filter(s => s.status === 'completed').length}
                     </span>
-                    <span className="text-[10px] font-mono text-zinc-500 uppercase">Selesai</span>
+                    <span className="text-[10px] font-mono text-zinc-500 uppercase">{language === 'zh' ? '已完成' : 'Selesai'}</span>
                   </div>
+                </div>
+              </div>
+
+              {/* WhatsApp Admin Alerts Config Panel */}
+              <div className="bg-gradient-to-r from-emerald-50 to-green-50/50 rounded-2xl p-5 border border-emerald-250/50 shadow-xs mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2.5 bg-emerald-100 rounded-xl text-emerald-600 border border-emerald-200">
+                    <span className="text-xl">⚙️</span>
+                  </div>
+                  <div className="text-left py-0.5">
+                    <h4 className="font-display font-black text-sm text-emerald-950">
+                      {t.adminWaConfigTitle}
+                    </h4>
+                    <p className="text-[11px] text-emerald-800 font-medium leading-relaxed max-w-xl">
+                      {t.adminWaConfigDesc}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 select-none">
+                  <input
+                    type="text"
+                    placeholder="Contoh: 6282292305555"
+                    value={adminWhatsAppNumber}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      setAdminWhatsAppNumber(val);
+                      try {
+                        localStorage.setItem('nusakirim_admin_whatsapp', val);
+                      } catch {}
+                    }}
+                    className="w-full sm:w-48 bg-white border border-emerald-250 rounded-xl px-3 py-2 text-xs font-mono font-bold text-emerald-900 focus:outline-emerald-500"
+                  />
+                  <span className="text-xs bg-emerald-100 text-emerald-800 font-black px-2 py-1 rounded-lg shrink-0">
+                    {t.adminWaConfigActive}
+                  </span>
                 </div>
               </div>
 
@@ -647,7 +1114,7 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
                   <input
                     type="text"
-                    placeholder="Cari berdasarkan nama, No WA, produk, atau ID..."
+                    placeholder={t.adminSearchPlaceholder}
                     value={adminSearch}
                     onChange={(e) => setAdminSearch(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-zinc-250 text-sm focus:outline-none focus:ring-1 focus:ring-studio-charcoal"
@@ -671,32 +1138,37 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                           : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-650 border-zinc-200'
                       }`}
                     >
-                      {filterOpt === 'all' ? 'Semua Status' : filterOpt === 'pending' ? '🆕 Masuk' : filterOpt === 'processing' ? '⚙️ Diproses' : filterOpt === 'completed' ? '✅ Selesai' : '❌ Batal'}
+                      {filterOpt === 'all' ? t.adminAllStatus : filterOpt === 'pending' ? t.adminTabPending : filterOpt === 'processing' ? t.adminTabProcessing : filterOpt === 'completed' ? t.adminTabCompleted : t.adminTabCancelled}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Submissions List */}
-              {isLoading ? (
+              {/* Submissions List & Live Activity Panel Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                {/* Left Column: Submissions (Col span: 8) */}
+                <div className="lg:col-span-8 space-y-6">
+                  {/* Submissions List */}
+                  {isLoading ? (
                 <div className="text-center py-24 bg-white rounded-3xl border border-zinc-200 shadow-xs">
                   <RefreshCw className="w-10 h-10 text-studio-accent mx-auto animate-spin mb-4" />
-                  <p className="text-zinc-500 font-medium">Memuat pesanan dan draf pengiriman...</p>
+                  <p className="text-zinc-500 font-medium">{t.adminLoading}</p>
                 </div>
               ) : filteredSubmissions.length === 0 ? (
                 <div className="text-center py-20 bg-white rounded-3xl border border-zinc-200 shadow-xs max-w-2xl mx-auto">
                   <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-zinc-200">
                     <ShoppingBag className="w-8 h-8 text-zinc-400" />
                   </div>
-                  <p className="text-zinc-850 font-display font-bold text-lg">Belum Ada Pesanan yang Masuk</p>
+                  <p className="text-zinc-850 font-display font-bold text-lg">{t.adminNoOrdersTitle}</p>
                   <p className="text-zinc-500 text-xs mt-2 px-6 max-w-md mx-auto leading-relaxed">
-                    Sistem dalam keadaan siap! Pesanan baru yang diajukan oleh pelanggan (menyertakan <strong>Nama</strong>, <strong>No. WhatsApp</strong>, serta <strong>Link Produk</strong>) akan otomatis muncul secara instan di panel admin ini.
+                    {t.adminNoOrdersDesc}
                   </p>
                   <button
                     onClick={() => { setAdminFilter('all'); setAdminSearch(''); }}
                     className="mt-5 px-5 py-2.5 bg-studio-charcoal text-white rounded-xl text-xs font-semibold hover:bg-zinc-805 transition-all text-center select-none"
                   >
-                    Refresh / Tampilkan Semua Saringan
+                    {t.adminRefreshFilter}
                   </button>
                 </div>
               ) : (
@@ -752,11 +1224,11 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                             {/* Client Identification */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-2 bg-zinc-50/70 p-4 rounded-xl border border-zinc-100">
                               <div>
-                                <span className="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider">NAMA PEMBELI</span>
+                                <span className="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider">{t.adminBuyerLabel}</span>
                                 <span className="text-sm font-bold text-studio-charcoal block mt-0.5">{item.customerName}</span>
                               </div>
                               <div>
-                                <span className="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider">NO WHATSAPP</span>
+                                <span className="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider">{t.adminWaLabel}</span>
                                 <a
                                   href={`https://wa.me/${item.customerPhone.replace(/\D/g, '').replace(/^0/, '62')}`}
                                   target="_blank"
@@ -769,7 +1241,7 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                               </div>
                               {item.customerAddress && (
                                 <div className="md:border-l md:pl-4 border-zinc-200">
-                                  <span className="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider">ALAMAT PENGIRIMAN</span>
+                                  <span className="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider">{t.adminAddressLabel}</span>
                                   <span className="text-xs font-bold text-zinc-700 block mt-0.5 leading-relaxed">{item.customerAddress}</span>
                                 </div>
                               )}
@@ -777,7 +1249,7 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
 
                             {/* Product Paste Link Container */}
                             <div className="space-y-1">
-                              <span className="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider">LINK BELANJA PELANGGAN</span>
+                              <span className="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider">{t.adminLinkCustomer}</span>
                               <div className="flex items-center gap-2">
                                 <span className="text-xs bg-zinc-100 text-zinc-600 px-3 py-2 rounded-xl truncate flex-1 block font-mono border border-zinc-150 relative">
                                   {item.productUrl}
@@ -796,7 +1268,7 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="p-2 bg-studio-charcoal text-white hover:bg-studio-charcoal/90 rounded-xl transition-colors shrink-0 flex items-center justify-center"
-                                  title="Buka Link Produk"
+                                  title={language === 'zh' ? '打开商品链接' : 'Buka Link Produk'}
                                 >
                                   <ExternalLink className="w-4 h-4" />
                                 </a>
@@ -806,12 +1278,12 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                             {/* Quantity and Custom notes */}
                             <div className="grid grid-cols-3 gap-4 text-xs">
                               <div>
-                                <span className="text-zinc-400 block font-mono">QTY PESANAN</span>
+                                <span className="text-zinc-400 block font-mono">{t.adminQtyLabel}</span>
                                 <p className="font-bold text-studio-charcoal text-sm mt-0.5">{item.quantity} Qty</p>
                               </div>
                               <div className="col-span-2">
-                                <span className="text-zinc-400 block font-mono">CATATAN KHUSUS PELANGGAN</span>
-                                <p className="text-zinc-600 mt-0.5 italic text-xs">{item.notes || 'Tidak ada catatan khusus.'}</p>
+                                <span className="text-zinc-400 block font-mono">{t.adminNotesLabel}</span>
+                                <p className="text-zinc-600 mt-0.5 italic text-xs">{item.notes || t.adminNoNotes}</p>
                               </div>
                             </div>
                           </div>
@@ -822,37 +1294,37 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                             {/* Update Pricing estimate */}
                             <div className="space-y-1.5">
                               <label className="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
-                                ESTIMASI BIAYA & ONGKIR
+                                {t.adminCostLabel}
                               </label>
                               <div className="relative">
                                 <input
                                   type="text"
-                                  placeholder="Contoh: Rp 250.000"
+                                  placeholder={language === 'zh' ? '例如：Rp 250.000' : 'Contoh: Rp 250.000'}
                                   defaultValue={item.priceEstimate || ''}
                                   onBlur={(e) => handleUpdateStatus(item.id, '', e.target.value)}
                                   className="w-full text-xs px-3 py-2 border border-zinc-250 rounded-xl focus:outline-none focus:border-zinc-500 font-mono shadow-inner bg-zinc-50/50"
                                 />
                                 <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] text-zinc-400 pointer-events-none font-mono font-bold">
-                                  AUTO-SAVE
+                                  {t.adminAutoSave}
                                 </span>
                               </div>
-                              <p className="text-[10px] text-zinc-400">Tekan 'Enter' atau klik di luar kotak untuk menyimpan biaya.</p>
+                              <p className="text-[10px] text-zinc-400">{t.adminCostNote}</p>
                             </div>
 
                             {/* Set Status Selection dropdown */}
                             <div className="space-y-1.5">
                               <label className="block text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
-                                RUBAH STATUS PESANAN
+                                {t.adminChangeStatusLabel}
                               </label>
                               <select
                                 value={item.status}
                                 onChange={(e) => handleUpdateStatus(item.id, e.target.value)}
                                 className="w-full text-xs px-3 py-2.5 rounded-xl border border-zinc-250 text-studio-charcoal font-semibold cursor-pointer focus:outline-none focus:ring-1 focus:ring-studio-charcoal bg-white"
                               >
-                                <option value="pending">🆕 Masuk (Pending)</option>
-                                <option value="processing">⚙️ Sedang Diproses</option>
-                                <option value="completed">✅ Selesai Dibelikan</option>
-                                <option value="cancelled">❌ Batalkan Pesanan</option>
+                                <option value="pending">{t.adminStatusPendingOpt}</option>
+                                <option value="processing">{t.adminStatusProcessingOpt}</option>
+                                <option value="completed">{t.adminStatusCompletedOpt}</option>
+                                <option value="cancelled">{t.adminStatusCancelledOpt}</option>
                               </select>
                             </div>
 
@@ -863,10 +1335,10 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                                   setAdminActiveChatId(item.id);
                                 }}
                                 className="flex-1 min-w-[70px] bg-studio-charcoal hover:bg-zinc-805 text-white py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs"
-                                title="Chat dengan Pelanggan via NusaKirim Live Chat"
+                                title={language === 'zh' ? '通过 NusaKirim 在线客服与客户沟通' : 'Chat dengan Pelanggan via NusaKirim Live Chat'}
                               >
                                 <MessageSquare className="w-3.5 h-3.5 text-studio-accent shrink-0" />
-                                <span>Chat Live</span>
+                                <span>{t.adminChatLiveBtn}</span>
                               </button>
 
                               <a
@@ -876,13 +1348,13 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                                 className="flex-1 min-w-[70px] bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs"
                               >
                                 <Phone className="w-3.5 h-3.5 shrink-0" />
-                                <span>WA Chat</span>
+                                <span>{t.adminWaChatBtn}</span>
                               </a>
 
                               <button
                                 onClick={() => handleDeleteSubmission(item.id)}
                                 className="p-2.5 text-red-500 hover:text-white border border-red-200 hover:bg-red-500 rounded-xl transition-colors cursor-pointer shrink-0"
-                                title="Hapus Data Pesanan"
+                                title={language === 'zh' ? '删除订单数据' : 'Hapus Data Pesanan'}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -896,6 +1368,162 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                   })}
                 </div>
               )}
+                </div>
+
+                {/* Right Column: Live Activity Feed (Col span: 4) */}
+                <div id="admin-activity-panels" className="lg:col-span-4 space-y-6">
+                  <div className="bg-white rounded-3xl border border-zinc-200 shadow-xs overflow-hidden text-left p-5">
+                    
+                    <div className="flex items-center justify-between pb-4 border-b border-zinc-150 mb-4 select-none">
+                      <div className="flex items-center gap-2">
+                        <span className="relative flex h-3 w-3">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        </span>
+                        <h4 className="font-display font-black text-xs text-zinc-800 tracking-tight uppercase flex items-center gap-1.5">
+                          <Bell className="w-4 h-4 text-[#E61C24]" />
+                          <span>{t.adminActivityTitle}</span>
+                        </h4>
+                      </div>
+                      <span className="bg-zinc-100 text-zinc-650 text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold">
+                        {activities.length} {t.adminActivityLogCount}
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-zinc-500 mb-4 leading-relaxed select-none font-medium">
+                      {t.adminActivityDesc}
+                    </p>
+
+                    <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1 scrollbar-thin">
+                      {activities.length === 0 ? (
+                        <div className="text-center py-10 border border-dashed border-zinc-200 rounded-2xl bg-zinc-50 select-none">
+                          <span className="text-xl block mb-2">📡</span>
+                          <p className="text-xs font-bold text-zinc-400">{t.adminNoActivity}</p>
+                        </div>
+                      ) : (
+                        activities.map((act) => {
+                          let cardBg = "bg-zinc-50/70 border-zinc-150";
+                          let badgeBg = "bg-zinc-100 text-zinc-700 border-zinc-200";
+                          let actIcon = "🎒";
+                          let actTitle = language === 'zh' ? '活动' : 'Aktivitas';
+
+                          if (act.type === 'register') {
+                            cardBg = "bg-emerald-50/50 border-emerald-200/60";
+                            badgeBg = "bg-emerald-100 text-emerald-800 border-emerald-200/40";
+                            actIcon = "✨";
+                            actTitle = language === 'zh' ? '新注册' : 'Daftar Baru';
+                          } else if (act.type === 'enter') {
+                            cardBg = "bg-sky-50/55 border-sky-200/60";
+                            badgeBg = "bg-sky-100 text-sky-800 border-sky-200/40";
+                            actIcon = "🟢";
+                            actTitle = language === 'zh' ? '进入网站' : 'Masuk Web';
+                          } else if (act.type === 'submit_order') {
+                            cardBg = "bg-amber-50/50 border-amber-200/60";
+                            badgeBg = "bg-amber-100 text-amber-800 border-amber-200/40";
+                            actIcon = "🛍️";
+                            actTitle = language === 'zh' ? '发送链接' : 'Kirim Link';
+                          }
+
+                          let formattedTime = "";
+                          try {
+                            if (act.createdAt) {
+                              const d = new Date(act.createdAt);
+                              formattedTime = d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIT';
+                            }
+                          } catch {}
+
+                          return (
+                            <div 
+                              key={act.id} 
+                              className={`p-3.5 rounded-2xl border text-left text-xs transition-all relative overflow-hidden flex flex-col gap-2 ${cardBg} hover:-translate-y-[1px]`}
+                            >
+                              <div className="flex items-center justify-between gap-2 select-none">
+                                <span className={`inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${badgeBg}`}>
+                                  <span>{actIcon}</span>
+                                  <span>{actTitle}</span>
+                                </span>
+                                <span className="text-[9px] font-mono text-zinc-400 font-extrabold">{formattedTime}</span>
+                              </div>
+
+                              <div>
+                                <h5 className="font-extrabold text-zinc-800 leading-snug flex items-center gap-1.5 capitalize">
+                                  <span>{act.customerName}</span>
+                                  {act.type === 'register' && (
+                                    <span className="text-[9px] font-bold text-emerald-600 bg-emerald-100/50 px-1 rounded">{language === 'zh' ? '新' : 'BARU'}</span>
+                                  )}
+                                </h5>
+                                <p className="text-[10px] font-sans text-zinc-500 font-semibold mt-0.5 leading-relaxed">
+                                  {act.details === 'Membuka Website NusaKirim (Simulasi)' && language === 'zh'
+                                    ? '打开 NusaKirim 网站（模拟）'
+                                    : act.details === 'Membuka Halaman Utama' && language === 'zh'
+                                    ? '打开主页'
+                                    : act.details}
+                                </p>
+                              </div>
+
+                              <div className="pt-2 border-t border-dashed border-zinc-200/80 flex flex-col gap-1 text-[10px]">
+                                <div className="flex items-center gap-2 text-zinc-500 font-mono font-bold">
+                                  <span>📞 WA:</span>
+                                  <span className="text-zinc-700">{act.customerPhone}</span>
+                                </div>
+                                {act.customerAddress && (
+                                  <div className="text-zinc-400 italic font-semibold line-clamp-1 truncate" title={act.customerAddress}>
+                                    📍 {language === 'zh' ? '收货地址' : 'Alamat'}: {act.customerAddress}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Quick Simulation Actions */}
+                    <div className="mt-4 pt-4 border-t border-zinc-150 flex gap-2 select-none">
+                      <button 
+                        onClick={() => {
+                          fetchActivities();
+                          addToast(language === 'zh' ? '📡 成功更新活动日志。' : '📡 Berhasil memperbarui log aktivitas.', 'info');
+                        }}
+                        className="flex-1 py-1.5 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 hover:border-zinc-300 rounded-xl text-[10px] font-bold text-zinc-650 tracking-wider transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95"
+                      >
+                        <RefreshCw className="w-3 h-3 text-zinc-400" />
+                        <span>{t.adminRefreshLogBtn}</span>
+                      </button>
+                      
+                      <button 
+                        onClick={async () => {
+                          try {
+                            const sampleNames = ["Andi Sofifi", "Kak Ros", "Hasan Ternate", "Siti Halmahera", "Mitra Mandiri", "Fahri", "Lia"];
+                            const randomName = sampleNames[Math.floor(Math.random() * sampleNames.length)];
+                            await fetch('/api/activities', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                type: 'enter',
+                                customerName: `${randomName}`,
+                                customerPhone: `0813${Math.floor(10000000 + Math.random() * 90000000)}`,
+                                customerAddress: 'Rute Pelabuhan Bastiong, Ternate',
+                                details: 'Membuka Website NusaKirim (Simulasi)'
+                              })
+                            });
+                            fetchActivities();
+                            addToast(language === 'zh' ? '🧪 模拟进入已触发！' : '🧪 Simulasi masuk dipicu!', 'success');
+                          } catch (err) {
+                            console.error(err);
+                          }
+                        }}
+                        className="py-1.5 px-3 bg-zinc-50 hover:bg-[#E61C24]/5 hover:text-[#E61C24] border border-zinc-200 hover:border-red-200 rounded-xl text-[10px] font-bold text-zinc-500 transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95 whitespace-nowrap"
+                        title={language === 'zh' ? '模拟新访问通知' : 'Simulasikan Notifikasi Kunjungan Baru'}
+                      >
+                        <span>{t.adminSimulationBtn}</span>
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
 
               {/* ADMIN CHAT SLIDE OVER SIDE-PANEL */}
               <AnimatePresence>
@@ -1077,18 +1705,18 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                         NusaKirim Express
                       </h3>
                       <p className="text-[10px] text-zinc-200 font-bold tracking-widest uppercase">
-                        Jembatan Belanja Ternate – Sofifi
+                        {language === 'zh' ? '德尔纳特 – 索菲菲 购物转运桥梁' : 'Jembatan Belanja Ternate – Sofifi'}
                       </p>
                     </div>
                   </div>
                   <div className="w-24 h-0.5 bg-[#ECC828] rounded-full my-3" />
                   <p className="text-xs text-white/90 leading-relaxed font-sans">
-                    Halo Kak! Silakan lengkapi profil singkat Anda sebelum memulai. Cukup sekali isi, selanjutnya tinggal salin & tempel link belanja saja!
+                    {t.loginGreeting}
                   </p>
                 </div>
 
                 <form 
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
                     
                     const name = (e.currentTarget.elements.namedItem('loginName') as HTMLInputElement).value.trim();
@@ -1096,72 +1724,142 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                     const address = (e.currentTarget.elements.namedItem('loginAddress') as HTMLTextAreaElement).value.trim();
 
                     if (!name || !phone || !address) {
-                      addToast('Mohon lengkapi semua data profil Anda.', 'info');
+                      addToast(language === 'zh' ? '请填写完整您的个人档案。' : 'Mohon lengkapi semua data profil Anda.', 'info');
                       return;
                     }
 
-                    const profile = { name, phone, address };
-                    localStorage.setItem('nusakirim_user_profile', JSON.stringify(profile));
-                    
-                    setUserProfile(profile);
-                    setCustomerName(name);
-                    setCustomerPhone(phone);
-                    setCustomerAddress(address);
+                    try {
+                      const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, phone, address })
+                      });
 
-                    addToast(`Selamat Datang, ${name}! Profil berhasil disinkronkan.`, 'success');
+                      const result = await response.json();
+
+                      if (!response.ok || !result.success) {
+                        addToast(result.error || (language === 'zh' ? '档案注册失败' : 'Pendaftaran profil gagal.'), 'info');
+                        return;
+                      }
+
+                      const profile = { name, phone, address };
+                      localStorage.setItem('nusakirim_user_profile', JSON.stringify(profile));
+                      
+                      setUserProfile(profile);
+                      setCustomerName(name);
+                      setCustomerPhone(phone);
+                      setCustomerAddress(address);
+                      setRecentRegisteredUser(profile);
+
+                      // Automatically fetch user's historical submissions from server to synchronize their orders list
+                      try {
+                        const historyResp = await fetch(`/api/submissions?phone=${encodeURIComponent(phone)}`);
+                        const historyResult = await historyResp.json();
+                        if (historyResult.success && Array.isArray(historyResult.data)) {
+                          const fetchedIds = historyResult.data.map((item: any) => item.id);
+                          setMySubmissions(prev => {
+                            const merged = Array.from(new Set([...prev, ...fetchedIds]));
+                            return merged;
+                          });
+                        }
+                      } catch (historyErr) {
+                        console.error("Gagal menyinkronkan riwayat pesanan dari server:", historyErr);
+                      }
+
+                      addToast(result.message || (language === 'zh' ? `欢迎回来，${name}！` : `Selamat Datang, ${name}! Profil berhasil disinkronkan.`), 'success');
+                      
+                      // Push registration report to the server for live admin notifications
+                      logActivity('register', name, phone, address, 'Mendaftar Profil Baru di NusaKirim');
+                    } catch (err: any) {
+                      console.error("Gagal melakukan registrasi profil:", err);
+                      addToast(language === 'zh' ? '同步个人档案失败，请重试。' : 'Gagal menghubungkan ke server untuk sinkronisasi profil.', 'info');
+                    }
                   }}
                   className="p-6 space-y-5"
                 >
+                  {/* Language selection choice */}
+                  <div className="space-y-1.5 p-3.5 bg-zinc-50 rounded-2xl border border-zinc-200/80">
+                    <label className="block text-[11px] uppercase tracking-wider font-extrabold text-zinc-600 flex items-center gap-1.5">
+                      🌐 Pilih Bahasa / 选择语言
+                    </label>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => handleLanguageChange('id')}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                          language === 'id'
+                            ? 'bg-red-50 border-red-500 text-red-600 shadow-sm'
+                            : 'bg-white border-zinc-200 text-zinc-500 hover:bg-zinc-100'
+                        }`}
+                      >
+                        <span className="text-sm">🇮🇩</span>
+                        <span>Bahasa Indonesia</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleLanguageChange('zh')}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                          language === 'zh'
+                            ? 'bg-red-50 border-red-500 text-red-600 shadow-sm'
+                            : 'bg-white border-zinc-200 text-zinc-500 hover:bg-zinc-100'
+                        }`}
+                      >
+                        <span className="text-sm">🇨🇳</span>
+                        <span>中文 (Chinese)</span>
+                      </button>
+                    </div>
+                  </div>
+
                   {/* 1. Nama Lengkap */}
                   <div className="space-y-1.5">
                     <label className="block text-[11px] uppercase tracking-wider font-extrabold text-zinc-650">
-                      Nama Lengkap *
+                      {t.nameLabel}
                     </label>
                     <div className="relative">
                       <input
                         name="loginName"
                         type="text"
                         required
-                        placeholder="Contoh: Muhammad Rian"
+                        placeholder={t.namePlaceholder}
                         className="w-full text-xs sm:text-sm pl-4 pr-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50/60 focus:bg-white text-studio-charcoal focus:outline-none transition-all font-sans"
                       />
                     </div>
-                    <p className="text-[9px] text-zinc-400">Gunakan nama asli untuk mempermudah verifikasi paket.</p>
+                    <p className="text-[9px] text-zinc-400">{t.nameTip}</p>
                   </div>
 
                   {/* 2. No WhatsApp */}
                   <div className="space-y-1.5">
                     <label className="block text-[11px] uppercase tracking-wider font-extrabold text-zinc-650">
-                      Nomor WhatsApp Aktif *
+                      {t.phoneLabel}
                     </label>
                     <div className="relative">
                       <input
                         name="loginPhone"
                         type="text"
                         required
-                        placeholder="Contoh: 08123456789 atau +62..."
+                        placeholder={t.phonePlaceholder}
                         className="w-full text-xs sm:text-sm pl-4 pr-10 py-3 rounded-xl border border-zinc-200 bg-zinc-50/60 focus:bg-white text-studio-charcoal focus:outline-none transition-all font-mono"
                       />
                       <div className="absolute right-3.5 top-3.5 text-zinc-400">
                         <Phone className="w-4 h-4" />
                       </div>
                     </div>
-                    <p className="text-[9px] text-zinc-400">Admin akan segera berkabar melalui nomor WhatsApp ini.</p>
+                    <p className="text-[9px] text-zinc-400">{t.phoneTip}</p>
                   </div>
 
                   {/* 3. Alamat pengiriman */}
                   <div className="space-y-1.5">
                     <label className="block text-[11px] uppercase tracking-wider font-extrabold text-zinc-650">
-                      Alamat Pengiriman Lengkap *
+                      {t.addressLabel}
                     </label>
                     <textarea
                       name="loginAddress"
                       rows={3}
                       required
-                      placeholder="Contoh: Perumahan Indah Sofifi, Blok C No. 5, Sofifi, Maluku Utara (Dekat Kantor Gubernur)"
+                      placeholder={t.addressPlaceholder}
                       className="w-full text-xs sm:text-sm px-4 py-3 rounded-xl border border-zinc-200 bg-zinc-50/60 focus:bg-white text-studio-charcoal focus:outline-none transition-all resize-none font-sans"
                     />
-                    <p className="text-[9px] text-zinc-400">Pastikan rincian rute pengiriman, kelurahan, dan kecamatan ditulis lengkap.</p>
+                    <p className="text-[9px] text-zinc-400">{t.addressTip}</p>
                   </div>
 
                   {/* CTA button */}
@@ -1170,14 +1868,14 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                     type="submit"
                     className="w-full py-3.5 bg-[#E61C24] hover:bg-red-700 active:scale-95 text-white rounded-xl font-bold font-display text-xs sm:text-sm tracking-wide transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-red-150"
                   >
-                    <span>⚡ Masuk & Mulai Belanja ⚡</span>
+                    <span>{t.loginBtn}</span>
                   </motion.button>
                 </form>
 
                 {/* Secure footer block */}
                 <div className="bg-zinc-50 px-6 py-4 border-t border-zinc-150 flex items-center gap-3 text-[10px] text-zinc-500 font-semibold justify-center">
                   <span>🛡️</span>
-                  <span>Data Anda aman & tersimpan secara lokal di browser Anda.</span>
+                  <span>{t.loginFooter}</span>
                 </div>
               </div>
             </motion.div>
@@ -1261,7 +1959,7 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                       <span className="block text-[9px] uppercase font-bold text-white/60 tracking-wider">Tujuan Pengiriman :</span>
                       <p className="flex items-center gap-1 font-bold text-white leading-none">
                         <MapPin className="w-4 h-4 text-[#ECC828] shrink-0" />
-                        <span className="truncate max-w-xs sm:max-w-md">Lokasi Kamu Saat Ini - Jl. Hijra, Galal, Ternate (Rute Kilat Sofifi)</span>
+                        <span className="truncate max-w-xs sm:max-w-md">Lokasi Kamu Saat Ini - Jl. Hijra, Galala, Ternate (Rute Kilat Sofifi)</span>
                       </p>
                     </div>
                   </div>
@@ -1270,63 +1968,41 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
 
               {/* ==================== A-POINTS COINS & VOUCHER DOCK CARD (ALFAGIFT STYLE) ==================== */}
               <div className="max-w-5xl mx-auto px-4 -mt-4 relative z-40 select-none">
-                <div className="bg-white rounded-3xl border border-zinc-200/95 shadow-xl p-4.5 sm:p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center divide-y md:divide-y-0 md:divide-x divide-zinc-150">
+                <div className="bg-white rounded-3xl border border-zinc-200/95 shadow-xl p-4.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   
                   {/* 1. Profile / Greetings */}
-                  <div className="flex items-center justify-between w-full md:w-auto gap-3 pb-3 md:pb-0">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 bg-red-50 text-[#E61C24] border border-red-200/40 rounded-2xl flex items-center justify-center text-base font-black italic">
-                        NK
-                      </div>
-                      <div className="text-left">
-                        <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-wider leading-none">PELANGGAN SETIA</p>
-                        <h4 className="font-display font-black text-sm text-zinc-800 mt-0.5 max-w-[150px] sm:max-w-xs truncate" title={userProfile?.name}>
-                          {userProfile ? userProfile.name : "Mitra NusaKirim"}
-                        </h4>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 bg-red-50 text-[#E61C24] border border-red-200/40 rounded-2xl flex items-center justify-center text-base font-black italic">
+                      NK
                     </div>
+                    <div className="text-left font-sans">
+                      <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-wider leading-none">PELANGGAN SETIA</p>
+                      <h4 className="font-display font-black text-sm text-zinc-800 mt-0.5 max-w-[150px] sm:max-w-xs truncate" title={userProfile?.name}>
+                        {userProfile ? userProfile.name : "Mitra NusaKirim"}
+                      </h4>
+                      {userProfile?.phone && (
+                        <p className="text-[10px] text-zinc-500 font-mono font-semibold mt-0.5">WhatsApp: {userProfile.phone}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right side info & actions */}
+                  <div className="flex flex-wrap items-center gap-3 font-sans">
+                    {userProfile?.address && (
+                      <div className="hidden md:block max-w-[280px] text-zinc-500 text-[11px] leading-tight text-left pr-4 border-r border-zinc-205">
+                        <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-wider block leading-none mb-1">ALAMAT KIRIM:</span>
+                        <span className="truncate block font-semibold text-zinc-700" title={userProfile.address}>{userProfile.address}</span>
+                      </div>
+                    )}
                     {userProfile && (
                       <button
                         onClick={handleLogout}
-                        className="text-[10px] text-zinc-400 hover:text-[#E61C24] font-bold border border-zinc-200 hover:border-red-200 bg-zinc-50 px-2.5 py-1 rounded-xl transition-all mr-1 active:scale-95 cursor-pointer"
+                        className="text-[10px] text-zinc-500 hover:text-[#E61C24] font-bold border border-zinc-200 hover:border-red-200 bg-zinc-50 hover:bg-red-50/50 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 cursor-pointer shadow-xs inline-flex items-center gap-1.5"
                         title="Keluar / Ganti Akun"
                       >
-                        Ganti Akun
+                        🔄 Ganti Akun
                       </button>
                     )}
-                  </div>
-
-                  {/* 2. Nusa Coins & Points */}
-                  <div className="flex items-center justify-between sm:justify-start gap-4 py-3 md:py-0 px-0 md:px-5">
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-xl">🪙</span>
-                      <div className="text-left">
-                        <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-wider block leading-none">NUSA-KOIN</span>
-                        <span className="text-xs font-black text-zinc-800 mt-1 block">350 Koin</span>
-                      </div>
-                    </div>
-                    <div className="h-6 w-[1px] bg-zinc-200 hidden sm:block"></div>
-                    <div className="text-left">
-                      <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-wider block leading-none">Poin Loyalitas</span>
-                      <span className="text-xs font-black text-zinc-800 mt-1 block">0 Points</span>
-                    </div>
-                  </div>
-
-                  {/* 3. Vouchers widget with Ticket Claim button */}
-                  <div className="flex items-center justify-between gap-4 pt-3 md:pt-0 px-0 md:px-5">
-                    <div className="flex items-center gap-2.5">
-                      <Ticket className="w-5 h-5 text-[#E61C24] shrink-0" />
-                      <div className="text-left">
-                        <span className="text-[9px] text-zinc-400 font-bold uppercase tracking-wider block leading-none">Voucher Aktif</span>
-                        <span className="text-xs font-black text-[#E61C24] mt-0.5 block">Diskon Kargo 50%</span>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => addToast("Kupon diskon kargo 50% rute Ternate-Sofifi berhasil diaktifkan! Gunakan saat chat dengan admin.", "success")}
-                      className="bg-[#E61C24] hover:bg-red-700 active:scale-95 text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-xl transition-all cursor-pointer shadow-md shadow-red-200"
-                    >
-                      Klaim
-                    </button>
                   </div>
 
                 </div>
@@ -1429,29 +2105,21 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                   <span className="text-[10px] text-red-600 font-bold hover:underline cursor-pointer" onClick={() => handleScrollToSection('tentang-kami')}>Info Layanan</span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   
                   {/* Item 1: Jastip Order Form (Purple soft gradient) */}
                   <button
                     onClick={() => {
-                      const willShow = !showOrderForm;
-                      setShowOrderForm(willShow);
-                      if (willShow) {
-                        setTimeout(() => {
-                          const el = document.getElementById('order-form-anchor');
-                          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }, 150);
-                        addToast("Formulir jastip berhasil dibuka! Silakan draf pesanan belanja Anda.", "success");
-                      } else {
-                        addToast("Formulir Pemesanan disembunyikan.", "info");
-                      }
+                      const el = document.getElementById('order-form-anchor');
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      addToast("Silakan isi formulir pesanan belanja Anda di bawah ini!", "success");
                     }}
-                    className={`relative p-4 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100/70 border border-purple-200/50 flex flex-col justify-between items-start text-left min-h-[110px] shadow-xs active:scale-98 hover:shadow-md hover:border-purple-300 transition-all select-none cursor-pointer group`}
+                    className={`relative p-5 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100/70 border border-purple-200/50 flex flex-col justify-between items-start text-left min-h-[120px] shadow-xs active:scale-98 hover:shadow-md hover:border-purple-300 transition-all select-none cursor-pointer group w-full`}
                   >
-                    <span className="text-xl sm:text-2xl group-hover:scale-115 transition-transform duration-300">🛍️</span>
+                    <span className="text-2xl sm:text-3xl group-hover:scale-115 transition-transform duration-300">🛍️</span>
                     <div>
-                      <span className="block font-sans font-black text-[11px] sm:text-[12px] text-purple-950 uppercase tracking-tight">ENJOY SHOPPING</span>
-                      <span className="block text-[8.5px] text-purple-600/90 font-bold mt-1 leading-tight">Mulai Jastip Baru</span>
+                      <span className="block font-sans font-black text-[12px] sm:text-[13px] text-purple-950 uppercase tracking-tight">ENJOY SHOPPING</span>
+                      <span className="block text-[9px] sm:text-[10px] text-purple-600/90 font-bold mt-1 leading-tight">Mulai Jastip Baru</span>
                     </div>
                   </button>
 
@@ -1462,100 +2130,14 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                       setIsOpenChatWidget(true);
                       addToast("Menghubungkan Anda ke Layanan Pelanggan Live CS...", "success");
                     }}
-                    className="relative p-4 rounded-2xl bg-gradient-to-br from-cyan-50 to-cyan-100/70 border border-cyan-200/50 flex flex-col justify-between items-start text-left min-h-[110px] shadow-xs active:scale-98 hover:shadow-md hover:border-cyan-300 transition-all select-none cursor-pointer group"
+                    className="relative p-5 rounded-2xl bg-gradient-to-br from-cyan-50 to-cyan-100/70 border border-cyan-200/50 flex flex-col justify-between items-start text-left min-h-[120px] shadow-xs active:scale-98 hover:shadow-md hover:border-cyan-300 transition-all select-none cursor-pointer group w-full"
                   >
-                    <span className="text-xl sm:text-2xl group-hover:scale-115 transition-transform duration-300">💬</span>
+                    <span className="text-2xl sm:text-3xl group-hover:scale-115 transition-transform duration-300">💬</span>
                     <div>
-                      <span className="block font-sans font-black text-[11px] sm:text-[12px] text-cyan-950 uppercase tracking-tight">TAGIHAN & LAPOR</span>
-                      <span className="block text-[8.5px] text-cyan-600/90 font-bold mt-1 leading-tight">Chat Admin Live</span>
+                      <span className="block font-sans font-black text-[12px] sm:text-[13px] text-cyan-950 uppercase tracking-tight">TAGIHAN & LAPOR</span>
+                      <span className="block text-[9px] sm:text-[10px] text-cyan-600/90 font-bold mt-1 leading-tight">Chat Admin Live</span>
                     </div>
                   </button>
-
-                  {/* Item 3: Cek tarif cargo hemat (Amber soft gradient) */}
-                  <button
-                    onClick={() => {
-                      handleScrollToSection('shipping-rates');
-                      addToast("Menampilkan daftar kalkulasi tarif kargo laut & darat murah!", "info");
-                    }}
-                    className="relative p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100/70 border border-amber-200/50 flex flex-col justify-between items-start text-left min-h-[110px] shadow-xs active:scale-98 hover:shadow-md hover:border-amber-300 transition-all select-none cursor-pointer group"
-                  >
-                    <span className="text-xl sm:text-2xl group-hover:scale-115 transition-transform duration-300">🏷️</span>
-                    <div>
-                      <span className="block font-sans font-black text-[11px] sm:text-[12px] text-amber-950 uppercase tracking-tight">TEBUS MURAH</span>
-                      <span className="block text-[8.5px] text-amber-600/90 font-bold mt-1 leading-tight">Cek Tarif Cargo</span>
-                    </div>
-                  </button>
-
-                  {/* Item 4: Cara Belanja (Rose soft gradient) */}
-                  <button
-                    onClick={() => {
-                      setShowGuideModal(true);
-                      addToast("Menampilkan panduan langkah pemesanan Jastip NusaKirim.", "info");
-                    }}
-                    className="relative p-4 rounded-2xl bg-gradient-to-br from-rose-50 to-rose-100/70 border border-rose-200/50 flex flex-col justify-between items-start text-left min-h-[110px] shadow-xs active:scale-98 hover:shadow-md hover:border-rose-300 transition-all select-none cursor-pointer group"
-                  >
-                    <span className="text-xl sm:text-2xl group-hover:scale-115 transition-transform duration-300">🎁</span>
-                    <div>
-                      <span className="block font-sans font-black text-[11px] sm:text-[12px] text-rose-950 uppercase tracking-tight">EVENT PANDUAN</span>
-                      <span className="block text-[8.5px] text-rose-600/90 font-bold mt-1 leading-tight">Cara Kerja Jastip</span>
-                    </div>
-                  </button>
-
-                  {/* Item 5: Cek Transaksi Saya (Emerald soft gradient) */}
-                  <button
-                    onClick={() => {
-                      const el = document.getElementById('my-submissions-history');
-                      if (el) {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        addToast("Menampilkan tab riwayat nota & draf barang Anda di bawah!", "success");
-                      } else {
-                        addToast("Gulir ke bawah untuk memantau pesanan aktif Anda.", "info");
-                      }
-                    }}
-                    className="relative p-4 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100/70 border border-emerald-200/50 flex flex-col justify-between items-start text-left min-h-[110px] shadow-xs active:scale-98 hover:shadow-md hover:border-emerald-300 transition-all select-none cursor-pointer group"
-                  >
-                    <span className="text-xl sm:text-2xl group-hover:scale-115 transition-transform duration-300">📋</span>
-                    <div>
-                      <span className="block font-sans font-black text-[11px] sm:text-[12px] text-emerald-950 uppercase tracking-tight">TEBUS GRATIS</span>
-                      <span className="block text-[8.5px] text-emerald-600/90 font-bold mt-1 leading-tight">Lacak Pesanan Lokal</span>
-                    </div>
-                  </button>
-
-                  {/* Item 6: Admin Portal quick access (Zinc soft gradient) */}
-                  <button
-                    onClick={() => {
-                      setAdminPasswordInput('');
-                      setPasswordError('');
-                      setShowPassword(false);
-                      setShowAdminPasswordModal(true);
-                      addToast("Tantangan login administrator diaktifkan", "info");
-                    }}
-                    className="relative p-4 rounded-2xl bg-gradient-to-br from-zinc-50 to-zinc-150/70 border border-zinc-200/50 flex flex-col justify-between items-start text-left min-h-[110px] shadow-xs active:scale-98 hover:shadow-md hover:border-zinc-300 transition-all select-none cursor-pointer group"
-                  >
-                    <span className="text-xl sm:text-2xl group-hover:scale-115 transition-transform duration-300">🔑</span>
-                    <div>
-                      <span className="block font-sans font-black text-[11px] sm:text-[12px] text-zinc-950 uppercase tracking-tight">HARGA SPESIAL</span>
-                      <span className="block text-[8.5px] text-zinc-650 font-bold mt-1 leading-tight">Admin Control Center</span>
-                    </div>
-                  </button>
-
-                  {/* Item 7: Domestik Rute Kilat (Sky soft gradient) */}
-                  <div className="relative p-4 rounded-2xl bg-gradient-to-br from-sky-50 to-sky-100/70 border border-sky-200/50 flex flex-col justify-between items-start text-left min-h-[110px] shadow-xs select-none">
-                    <span className="text-xl sm:text-2xl">⚡</span>
-                    <div>
-                      <span className="block font-sans font-black text-[11px] sm:text-[12px] text-sky-950 uppercase tracking-tight">KONTROL RUTE</span>
-                      <span className="block text-[8.5px] text-sky-600/90 font-bold mt-1 leading-tight">Kilat Ternate - Sofifi</span>
-                    </div>
-                  </div>
-
-                  {/* Item 8: Safe protection re-packing label (Orange/Gold soft gradient) */}
-                  <div className="relative p-4 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100/70 border border-orange-200/50 flex flex-col justify-between items-start text-left min-h-[110px] shadow-xs select-none">
-                    <span className="text-xl sm:text-2xl">🛡️</span>
-                    <div>
-                      <span className="block font-sans font-black text-[11px] sm:text-[12px] text-orange-950 uppercase tracking-tight">REPACK AMAN</span>
-                      <span className="block text-[8.5px] text-orange-600/90 font-bold mt-1 leading-tight">Bubble Wrap Tebal</span>
-                    </div>
-                  </div>
 
                 </div>
               </div>
@@ -1563,79 +2145,61 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
               {/* Anchor block for smooth layout scroll target */}
               <div id="order-form-anchor" />
 
-              {/* Dynamic order form block that expands when user clicks 'Isi Formulir Pemesanan Baru' */}
-              <AnimatePresence>
-                {showOrderForm && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0, y: -20 }}
-                    animate={{ opacity: 1, height: 'auto', y: 0 }}
-                    exit={{ opacity: 0, height: 0, y: -20 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="overflow-hidden"
-                  >
-                    {/* Hero Banner with the dynamic Link Paste Form Box */}
-                    <div className="border-t border-b border-zinc-200/80 bg-zinc-50/50 py-12">
-                      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+              {/* Order form block statically displayed directly under Special section */}
+              <div className="overflow-hidden">
+                {/* Hero Banner with the dynamic Link Paste Form Box */}
+                <div className="border-t border-b border-zinc-200/80 bg-zinc-50/50 py-12">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                      
+                      {/* Left: Value proposition */}
+                      <div className="lg:col-span-5 space-y-6 text-left">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-studio-accent/15 border border-studio-accent/20">
+                          <Truck className="w-4 h-4 text-studio-accent" />
+                          <span className="text-[10px] font-mono tracking-widest font-bold uppercase text-studio-charcoal">
+                            JASA TITIP BELANJA & KARGO AMAN
+                          </span>
+                        </div>
+
+                        <h2 className="font-display font-black text-3xl sm:text-4xl tracking-tight text-studio-charcoal leading-tight">
+                          Formulir Jastip <br/>
+                          <span className="text-studio-accent">NusaKirim Express</span>
+                        </h2>
+
+                        <div className="space-y-4 text-xs sm:text-sm text-zinc-600">
+                          <p className="font-semibold text-zinc-850">
+                            Mudahnya titip beli barang dari mana saja dengan 2 langkah sederhana:
+                          </p>
+                          <ol className="space-y-2.5 pl-1">
+                            <li className="flex items-start gap-2.5">
+                              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#00AA13]/10 text-[#00AA13] text-[10px] font-bold shrink-0 mt-0.5">1</span>
+                              <span>Tempel link barang idaman Anda & isi formulir di samping.</span>
+                            </li>
+                            <li className="flex items-start gap-2.5">
+                              <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#00AA13]/10 text-[#00AA13] text-[10px] font-bold shrink-0 mt-0.5">2</span>
+                              <span>Admin kami akan mengecek, merincikan harga total, dan membuatkan invoice pemesanan.</span>
+                            </li>
+                          </ol>
+
+                          <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-[11px] text-zinc-700 italic">
+                            💡 <strong>Tips Lacak:</strong> Setelah tombol &quot;Kirim Pesanan&quot; diklik, tab chat pelacakan akan otomatis terbuka. Anda juga bebas mengobrol langsung dengan Admin di chat room tersebut.
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right: Dynamic Interactive Form Box */}
+                      <div className="lg:col-span-7">
+                        <div className="bg-white rounded-3xl border border-zinc-250/90 shadow-2xl overflow-hidden relative">
                           
-                          {/* Left: Value proposition */}
-                          <div className="lg:col-span-5 space-y-6 text-left">
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-studio-accent/15 border border-studio-accent/20">
-                              <Truck className="w-4 h-4 text-studio-accent" />
-                              <span className="text-[10px] font-mono tracking-widest font-bold uppercase text-studio-charcoal">
-                                JASA TITIP BELANJA & KARGO AMAN
+                          {/* Interactive Banner headers matching selection */}
+                          <div className={`p-5 text-white transition-all duration-305 flex items-center justify-between ${marketingStyle.accentBg}`}>
+                            <div className="flex items-center gap-2">
+                              <ShoppingBag className="w-5 h-5" />
+                              <span className="font-display font-bold text-xs sm:text-sm tracking-wide">
+                                FORMULIR PEMESANAN JASTIP & KARGO
                               </span>
                             </div>
-
-                            <h2 className="font-display font-black text-3xl sm:text-4xl tracking-tight text-studio-charcoal leading-tight">
-                              Formulir Jastip <br/>
-                              <span className="text-studio-accent">NusaKirim Express</span>
-                            </h2>
-
-                            <div className="space-y-4 text-xs sm:text-sm text-zinc-600">
-                              <p className="font-semibold text-zinc-850">
-                                Mudahnya titip beli barang dari mana saja dengan 3 langkah sederhana:
-                              </p>
-                              <ol className="space-y-2.5 pl-1">
-                                <li className="flex items-start gap-2.5">
-                                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#00AA13]/10 text-[#00AA13] text-[10px] font-bold shrink-0 mt-0.5">1</span>
-                                  <span>Tempel link barang idaman Anda & isi formulir di samping.</span>
-                                </li>
-                                <li className="flex items-start gap-2.5">
-                                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-[#00AA13]/10 text-[#00AA13] text-[10px] font-bold shrink-0 mt-0.5">2</span>
-                                  <span>Admin kami akan mengecek, merincikan harga total, dan membuatkan invoice pemesanan.</span>
-                                </li>
-                                <li className="flex items-start gap-2.5">
-                                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold shrink-0 mt-0.5">3</span>
-                                  <span>Barang dibelikan, di-repacking gratis dengan bubble wrap tebal, dan dikirimkan dengan kargo murah.</span>
-                                </li>
-                              </ol>
-
-                              <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-[11px] text-zinc-700 italic">
-                                💡 <strong>Tips Lacak:</strong> Setelah tombol &quot;Kirim Pesanan&quot; diklik, tab chat pelacakan akan otomatis terbuka. Anda juga bebas mengobrol langsung dengan Admin di chat room tersebut.
-                              </div>
-                            </div>
                           </div>
-
-                          {/* Right: Dynamic Interactive Form Box */}
-                          <div className="lg:col-span-7">
-                            <div className="bg-white rounded-3xl border border-zinc-250/90 shadow-2xl overflow-hidden relative">
-                              
-                              {/* Interactive Banner headers matching selection */}
-                              <div className={`p-5 text-white transition-all duration-305 flex items-center justify-between ${marketingStyle.accentBg}`}>
-                                <div className="flex items-center gap-2">
-                                  <ShoppingBag className="w-5 h-5" />
-                                  <span className="font-display font-bold text-xs sm:text-sm tracking-wide">
-                                    FORMULIR PEMESANAN JASTIP & KARGO
-                                  </span>
-                                </div>
-                                <button 
-                                  onClick={() => setShowOrderForm(false)}
-                                  className="text-white/80 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors"
-                                >
-                                  <X className="w-5 h-5" />
-                                </button>
-                              </div>
 
                               {/* Interactive Tabs selector for marketplaces */}
                               <div className="grid grid-cols-4 border-b border-zinc-205 font-display text-center">
@@ -1763,9 +2327,7 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                   </div>
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
 
               {/* Tentang Kami Section */}
               <section id="tentang-kami" className="py-20 bg-white border-b border-zinc-200 relative overflow-hidden">
@@ -1781,9 +2343,13 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
                       <div className="w-full h-[1px] bg-zinc-200" />
                       
                       <div className="space-y-2">
-                        <p className="text-[10px] font-bold text-zinc-400 font-mono tracking-wider">MITRA LOGISTIK UTAMA ANDA</p>
+                        <p className="text-[10px] font-bold text-zinc-400 font-mono tracking-wider">MITRA LOGISTIK UTAMA ANDA / 您的首选物流伙伴</p>
                         <p className="text-xs font-sans text-zinc-650 leading-relaxed font-normal">
-                          Layanan jastip modern yang memudahkan diaspora, pelajar, ekspatriat, dan pembeli mancanegara berbelanja barang orisinal langsung dari toko-toko online terpopuler Indonesia tanpa ribet urusan pembayaran maupun alamat.
+                          {language === 'zh' ? (
+                            "现代代购与货运服务，方便海外侨胞、留学生、外籍人士和海外买家直接从印尼最受欢迎的在线商店购买正品商品，无需为付款或地址烦恼。我们也接受从德尔纳特（Ternate）到索菲菲（Sofifi）的包裹运输服务。"
+                          ) : (
+                            "Layanan jastip modern yang memudahkan diaspora, pelajar, ekspatriat, dan pembeli mancanegara berbelanja barang orisinal langsung dari toko-toko online terpopuler Indonesia tanpa ribet urusan pembayaran maupun alamat. Kita juga menerima jasa pengiriman dari Ternate ke Sofifi."
+                          )}
                         </p>
                       </div>
                     </div>
@@ -1864,84 +2430,125 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
               {/* Step By Step Guide Panel */}
               <section id="how-it-works" className="py-16 bg-zinc-100 border-b border-zinc-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <div className="text-center max-w-2xl mx-auto mb-12">
-                    <span className="text-[11px] font-mono tracking-widest font-bold text-studio-accent uppercase">
-                      PANDUAN PRAKTIS TITIP BELI
-                    </span>
-                    <h2 className="text-3xl font-display font-black text-studio-charcoal mt-1 tracking-tight">
-                      4 Langkah Mudah Kirim & Beli
-                    </h2>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    {STEP_GUIDE.map((item, idx) => (
-                      <div key={idx} className="bg-white rounded-2xl p-6 border border-zinc-200 shadow-xs relative">
-                        <span className="absolute -top-5 right-4 font-display font-black text-4xl text-studio-accent/20">
-                          {item.step}
+                  
+                  {/* Catchy dynamic intro content requested by user */}
+                  <div className="bg-white rounded-3xl border border-zinc-200 p-8 sm:p-10 shadow-xs mb-12 text-left relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-36 h-36 bg-red-500/5 rounded-full blur-2xl pointer-events-none" />
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                      <div className="lg:col-span-8 space-y-4">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 border border-red-200 text-red-700 text-[10px] font-bold tracking-widest uppercase">
+                          ⚡ SOLUSI KIRIM LEBIH HEMAT
                         </span>
-                        <h3 className="font-display font-bold text-base text-studio-charcoal mb-2 mt-2">
-                          {item.title}
-                        </h3>
-                        <p className="text-xs text-zinc-500 font-sans leading-relaxed">
-                          {item.desc}
+                        <h2 className="text-2xl sm:text-3xl font-display font-black text-studio-charcoal tracking-tight">
+                          Cara Kerja NK Express
+                        </h2>
+                        <p className="text-xs sm:text-sm text-zinc-650 leading-relaxed font-semibold">
+                          NK Express membantu Anda menerima paket di Ternate dan mengirimkannya ke Sofifi. 
+                          Ongkos kirim dari Ternate ke Sofifi biasanya <span className="line-through text-red-500">Rp80.000 per kg</span>. 
+                          Dengan NK Express, cukup <span className="text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">Rp30.000 per kg</span>.
+                        </p>
+                        <p className="text-xs text-zinc-500 leading-relaxed">
+                          Caranya sangat mudah: belanja online seperti biasa, isi alamat pengiriman dengan alamat gudang kami di Ternate, kirim screenshot bukti pesanan Anda ke WhatsApp admin, lalu santai dan ambil paket Anda di Sofifi ketika telah tiba!
                         </p>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
-
-              {/* Shipping Live rates estimation */}
-              <section id="shipping-rates" className="py-20 bg-studio-beige">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                  
-                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
-                    <div>
-                      <span className="text-[11px] font-mono tracking-widest font-bold text-studio-terracotta uppercase">
-                        CEK ESTIMASI ONGKIR KARGO
-                      </span>
-                      <h2 className="text-3xl font-display font-black text-studio-charcoal mt-1 tracking-tight">
-                        Tarif Cargo & Kurir Kilat NusaKirim
-                      </h2>
-                    </div>
-                    <p className="text-xs text-zinc-500 max-w-sm">
-                      Harga di bawah ini merupakan estimasi berat per-KG (kilogram). Biaya final dihitung berdasarkan berat timbangan asli produk setelah dipacking di gudang transit kami.
-                    </p>
-                  </div>
-
-                  <div className="bg-white rounded-3xl overflow-hidden border border-zinc-200 shadow-sm">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse text-xs sm:text-sm">
-                        <thead>
-                          <tr className="bg-studio-charcoal text-white font-display border-b border-zinc-800">
-                            <th className="p-4 pl-6 font-semibold">Destinasi Pengiriman</th>
-                            <th className="p-4 font-semibold">Estimasi Durasi Sampai</th>
-                            <th className="p-4 pr-6 text-right font-semibold">Harga Mulai Dari / Kg</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-200">
-                          {SHIPPING_RATES.map((rate, i) => (
-                            <tr key={i} className="hover:bg-zinc-50/80 transition-colors">
-                              <td className="p-4 pl-6 font-semibold text-studio-charcoal flex items-center gap-2">
-                                <Globe2 className="w-4 h-4 text-studio-accent shrink-0" />
-                                <span>{rate.destination}</span>
-                              </td>
-                              <td className="p-4 text-zinc-500 font-medium">
-                                <span className="inline-flex items-center gap-1.5">
-                                  <Clock className="w-3.5 h-3.5 text-studio-sage" />
-                                  <span>{rate.duration}</span>
-                                </span>
-                              </td>
-                              <td className="p-4 pr-6 text-right font-mono font-bold text-studio-charcoal">
-                                {rate.pricePerKg}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                      
+                      {/* Interactive visually appealing price card comparing the savings */}
+                      <div className="lg:col-span-4 bg-zinc-50 rounded-2xl border border-zinc-200/80 p-5 text-center select-none">
+                        <div className="text-[10px] font-mono font-bold text-zinc-400 tracking-wider uppercase mb-2">METODE BANDING ONGKIR / KG</div>
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between text-xs px-2.5 py-1.5 bg-white border border-zinc-150 rounded-lg">
+                            <span className="text-zinc-500">Ongkir Umum Biasa</span>
+                            <span className="font-bold text-red-500 line-through font-mono">Rp 80.000</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs px-2.5 py-2 bg-[#E61C24]/5 border border-red-200 rounded-lg">
+                            <span className="text-red-700 font-bold">Tarif Spesial NK Express</span>
+                            <span className="font-extrabold text-[#E61C24] font-mono text-sm animate-pulse">Rp 30.000</span>
+                          </div>
+                        </div>
+                        <div className="text-[9px] text-zinc-500 font-medium mt-3 italic">
+                          * Lebih hemat 60%+ untuk pengiriman Bastiong ke Halmahera / Sofifi!
+                        </div>
+                      </div>
                     </div>
                   </div>
 
+                  {/* 3.3 Prosedur untuk Pelanggan */}
+                  <div className="text-center max-w-2xl mx-auto mb-10">
+                    <span className="text-[10px] font-mono tracking-widest font-bold text-[#E61C24] uppercase">
+                      PROSEDUR PELANGGAN (3.3)
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-display font-black text-studio-charcoal mt-1 tracking-tight">
+                      4 Langkah Mudah Kirim & Beli
+                    </h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-left">
+                    
+                    {/* Langkah 1 */}
+                    <div className="bg-white rounded-2xl p-6 border border-zinc-200 shadow-xs relative flex flex-col justify-between min-h-[170px] hover:border-zinc-300 hover:shadow-md transition-all">
+                      <div>
+                        <span className="font-mono text-[9px] font-extrabold tracking-wider text-[#E61C24] uppercase bg-red-50 px-2 py-0.5 rounded-md border border-red-100">
+                          LANGKAH 1
+                        </span>
+                        <h4 className="font-display font-black text-sm text-studio-charcoal mt-3 mb-2">
+                          Belanja seperti biasa
+                        </h4>
+                        <p className="text-[11px] text-zinc-500 font-sans leading-relaxed">
+                          Belanja di Shopee / Tokopedia / TikTok Shop / Lazada seperti biasanya Anda belanja online harian.
+                        </p>
+                      </div>
+                      <span className="absolute bottom-4 right-4 text-2xl select-none opacity-50">🛍️</span>
+                    </div>
+
+                    {/* Langkah 2 */}
+                    <div className="bg-white rounded-2xl p-6 border border-zinc-200 shadow-xs relative flex flex-col justify-between min-h-[170px] hover:border-zinc-300 hover:shadow-md transition-all">
+                      <div>
+                        <span className="font-mono text-[9px] font-extrabold tracking-wider text-purple-700 uppercase bg-purple-50 px-2 py-0.5 rounded-md border border-purple-100">
+                          LANGKAH 2
+                        </span>
+                        <h4 className="font-display font-black text-sm text-studio-charcoal mt-3 mb-2">
+                          Isi alamat gudang kami
+                        </h4>
+                        <p className="text-[11px] text-zinc-500 font-sans leading-relaxed">
+                          Gunakan alamat gudang kami di Ternate sebagai alamat pengiriman. Format nama penerima: <strong className="text-zinc-700 font-extrabold">NK-Nama Anda</strong>.
+                        </p>
+                      </div>
+                      <span className="absolute bottom-4 right-4 text-2xl select-none opacity-50">📍</span>
+                    </div>
+
+                    {/* Langkah 3 */}
+                    <div className="bg-white rounded-2xl p-6 border border-zinc-200 shadow-xs relative flex flex-col justify-between min-h-[170px] hover:border-zinc-300 hover:shadow-md transition-all">
+                      <div>
+                        <span className="font-mono text-[9px] font-extrabold tracking-wider text-amber-700 uppercase bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">
+                          LANGKAH 3
+                        </span>
+                        <h4 className="font-display font-black text-sm text-studio-charcoal mt-3 mb-2">
+                          Kirim bukti pesanan
+                        </h4>
+                        <p className="text-[11px] text-zinc-500 font-sans leading-relaxed">
+                          Selesaikan pembayaran belanja, lalu screenshot rincian pesanan dan kirim langsung ke WhatsApp kami.
+                        </p>
+                      </div>
+                      <span className="absolute bottom-4 right-4 text-2xl select-none opacity-50">📲</span>
+                    </div>
+
+                    {/* Langkah 4 */}
+                    <div className="bg-white rounded-2xl p-6 border border-zinc-200 shadow-xs relative flex flex-col justify-between min-h-[170px] hover:border-zinc-300 hover:shadow-md transition-all">
+                      <div>
+                        <span className="font-mono text-[9px] font-extrabold tracking-wider text-emerald-700 uppercase bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                          LANGKAH 4
+                        </span>
+                        <h4 className="font-display font-black text-sm text-studio-charcoal mt-3 mb-2">
+                          Ambil paket di Sofifi
+                        </h4>
+                        <p className="text-[11px] text-zinc-500 font-sans leading-relaxed">
+                          Kami akan memantau kedatangan di Ternate, melalukan cross-shipping cepat, dan mengabari begitu paket tiba di Sofifi.
+                        </p>
+                      </div>
+                      <span className="absolute bottom-4 right-4 text-2xl select-none opacity-50">🎁</span>
+                    </div>
+
+                  </div>
                 </div>
               </section>
 
@@ -1996,14 +2603,13 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
             <div className="flex flex-wrap gap-6 text-xs font-semibold justify-center">
               <a href="#hero-portal" className="hover:text-white transition-colors">Tempel Link</a>
               <a href="#how-it-works" className="hover:text-white transition-colors">Panduan</a>
-              <a href="#shipping-rates" className="hover:text-white transition-colors">Tarif Kargo</a>
               <a href="#logistics-faq" className="hover:text-white transition-colors">Pertanyaan</a>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between text-[11px] text-zinc-650 font-mono gap-4 text-center sm:text-left">
             <p>© 2026 NusaKirim Express. Hak Cipta Dilindungi Undang-Undang.</p>
-            <p>Warehouse Hub: Sleman, Yogyakarta & Transit Hub: Kalideres, Jakarta Barat</p>
+            <p>Kalau ada kiriman dari Ternate ke Sofifi, silakan hubungi kami</p>
           </div>
         </div>
       </footer>
@@ -2197,6 +2803,8 @@ Silakan konfirmasikan kelanjutan pemesanan jika estimasi sudah sesuai. Terima ka
           </div>
         )}
       </AnimatePresence>
+
+
 
       {/* ==================== C: CLIENT LIVE TRACKING & CHAT FLOATING WIDGET ==================== */}
       {!isOpenChatWidget && !isAdminMode && (

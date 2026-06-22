@@ -251,3 +251,182 @@ export async function addMessage(submissionId: string, sender: 'admin' | 'custom
   memoryMessages.push(newMessage);
   return newMessage;
 }
+
+// ---------------------- VISITOR ACTIVITY LOGS / NOTIFICATIONS ----------------------
+
+export interface IActivityLog {
+  id: string;
+  type: 'login' | 'register' | 'enter' | 'submit_order';
+  customerName: string;
+  customerPhone: string;
+  customerAddress?: string;
+  details?: string;
+  createdAt: string;
+}
+
+const ActivityLogSchema: Schema = new Schema({
+  id: { type: String, required: true, unique: true },
+  type: { type: String, required: true, enum: ['login', 'register', 'enter', 'submit_order'] },
+  customerName: { type: String, required: true },
+  customerPhone: { type: String, required: true },
+  customerAddress: { type: String, default: "" },
+  details: { type: String, default: "" },
+  createdAt: { type: String, required: true }
+});
+
+export const ActivityLogModel: any = mongoose.models.ActivityLog || mongoose.model("ActivityLog", ActivityLogSchema);
+
+let memoryActivities: IActivityLog[] = [];
+
+export async function getActivityLogs(): Promise<IActivityLog[]> {
+  const dbResult = await connectDatabase();
+  if (dbResult) {
+    try {
+      const docs = await ActivityLogModel.find().sort({ createdAt: -1 }).limit(100);
+      return docs.map(doc => ({
+        id: doc.id,
+        type: doc.type,
+        customerName: doc.customerName,
+        customerPhone: doc.customerPhone,
+        customerAddress: doc.customerAddress || "",
+        details: doc.details || "",
+        createdAt: doc.createdAt
+      }));
+    } catch (err) {
+      console.error("Gagal membaca log aktivitas dari MongoDB, menggunakan memori lokal:", err);
+    }
+  }
+  return memoryActivities;
+}
+
+export async function addActivityLog(data: Omit<IActivityLog, 'id' | 'createdAt'>): Promise<IActivityLog> {
+  const newId = `act-${Math.floor(100000 + Math.random() * 900000)}`;
+  const now = new Date().toISOString();
+  
+  const newActivity: IActivityLog = {
+    ...data,
+    id: newId,
+    createdAt: now
+  };
+
+  const dbResult = await connectDatabase();
+  if (dbResult) {
+    try {
+      await ActivityLogModel.create(newActivity);
+      return newActivity;
+    } catch (err) {
+      console.error("Gagal menyimpan log aktivitas ke MongoDB, menggunakan memori lokal:", err);
+    }
+  }
+
+  memoryActivities.unshift(newActivity);
+  // Keep memoryActivities under 150 items
+  if (memoryActivities.length > 150) {
+    memoryActivities = memoryActivities.slice(0, 150);
+  }
+  return newActivity;
+}
+
+// ---------------------- USER PROFILES (1 NUMBER = 1 ACCOUNT CHECK) ----------------------
+
+export interface IUserProfile {
+  name: string;
+  phone: string; // unique identifier
+  address: string;
+  createdAt: string;
+}
+
+const UserProfileSchema: Schema = new Schema({
+  name: { type: String, required: true },
+  phone: { type: String, required: true, unique: true },
+  address: { type: String, default: "" },
+  createdAt: { type: String, required: true }
+});
+
+export const UserProfileModel: any = mongoose.models.UserProfile || mongoose.model("UserProfile", UserProfileSchema);
+
+let memoryUserProfiles: IUserProfile[] = [];
+
+export async function registerUserProfile(data: Omit<IUserProfile, 'createdAt'>): Promise<{ success: boolean; message: string; data?: IUserProfile }> {
+  const normPhone = data.phone.trim();
+  const dbResult = await connectDatabase();
+  
+  if (dbResult) {
+    try {
+      // Find if phone exists
+      const existing = await UserProfileModel.findOne({ phone: normPhone });
+      if (existing) {
+        // If the name is different, block it! (1 phone number = 1 unique account name)
+        if (existing.name.toLowerCase() !== data.name.trim().toLowerCase()) {
+          return {
+            success: false,
+            message: `Nomor WhatsApp ${normPhone} sudah terdaftar dengan nama akun "${existing.name}". 1 Nomor hanya bisa digunakan untuk 1 Akun pemilik. Gunakan nomor WhatsApp yang berbeda!`
+          };
+        } else {
+          // It is the exact same account holder name, allow updating address
+          existing.address = data.address.trim();
+          await existing.save();
+          return {
+            success: true,
+            message: "Profil Anda berhasil disinkronkan!",
+            data: {
+              name: existing.name,
+              phone: existing.phone,
+              address: existing.address,
+              createdAt: existing.createdAt
+            }
+          };
+        }
+      }
+      
+      const newProfile = {
+        name: data.name.trim(),
+        phone: normPhone,
+        address: data.address.trim(),
+        createdAt: new Date().toISOString()
+      };
+      
+      await UserProfileModel.create(newProfile);
+      return {
+        success: true,
+        message: "Pendaftaran profil baru berhasil!",
+        data: newProfile
+      };
+    } catch (err: any) {
+      console.error("Gagal mendaftar ke MongoDB UserProfile:", err);
+    }
+  }
+  
+  // Handled memory fallback
+  const existingMem = memoryUserProfiles.find(p => p.phone === normPhone);
+  if (existingMem) {
+    if (existingMem.name.toLowerCase() !== data.name.trim().toLowerCase()) {
+      return {
+        success: false,
+        message: `Nomor WhatsApp ${normPhone} sudah terdaftar dengan nama akun "${existingMem.name}". 1 Nomor hanya bisa digunakan untuk 1 Akun pemilik. Gunakan nomor WhatsApp yang berbeda!`
+      };
+    } else {
+      existingMem.address = data.address.trim();
+      return {
+        success: true,
+        message: "Profil Anda berhasil disinkronkan di database memori lokal!",
+        data: existingMem
+      };
+    }
+  }
+  
+  const newProfileMem = {
+    name: data.name.trim(),
+    phone: normPhone,
+    address: data.address.trim(),
+    createdAt: new Date().toISOString()
+  };
+  memoryUserProfiles.push(newProfileMem);
+  return {
+    success: true,
+    message: "Pendaftaran profil baru berhasil!",
+    data: newProfileMem
+  };
+}
+
+
